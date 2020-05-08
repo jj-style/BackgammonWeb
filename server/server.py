@@ -21,14 +21,19 @@ def generate_game_code():
     return code
     
 
-@app.route("/api/createGame", methods=["GET"])
+@app.route("/api/game", methods=["GET"])
+@cross_origin()
+def games():
+    return jsonify({"games":game_codes})
+
+@app.route("/api/game/create", methods=["GET"])
 @cross_origin()
 def create_game():
     if request.method == "GET":
         code = generate_game_code()
         return jsonify({"gameCode":code})
 
-@app.route("/api/joinGame", methods=["POST"])
+@app.route("/api/game/join", methods=["POST"])
 @cross_origin()
 def join_game():
     if "gameCode" in request.args:

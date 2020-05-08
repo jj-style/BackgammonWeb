@@ -9,7 +9,7 @@ function App() {
 
     function joinGame(code) {
         console.log(`attempting to join game ${code}`);
-        fetch(`http://localhost:5000/api/joinGame?gameCode=${code}`, 
+        fetch(`http://localhost:5000/api/game/join?gameCode=${code}`, 
             {
                 method: "POST",
                 headers: {"Content-Type": "application/json"}
@@ -21,7 +21,7 @@ function App() {
 
     function createGame() {
         console.log("creating new game");
-        fetch("http://localhost:5000/api/createGame")
+        fetch("http://localhost:5000/api/game/create")
         .then(res => res.json())
         .then(data => console.log(data));
     }

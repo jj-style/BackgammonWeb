@@ -1,12 +1,13 @@
 from flask import Flask
 from flask import request, jsonify, abort, make_response
 from flask_cors import CORS, cross_origin
-import random
+import random, json
+from backgammon.game import Game
 
 app = Flask(__name__)
 cors = CORS(app)
 
-game_codes = []
+GAMES = {}
 
 def generate_game_code():
     valid = False
@@ -16,16 +17,10 @@ def generate_game_code():
             code += (chr(random.randint(65,90))) # choose uppercase letter
         for i in range(3):
             code += (chr(random.randint(48,57))) # choose number
-        valid = code not in game_codes
-    game_codes.append(code)
+        valid = code not in GAMES
+    GAMES[code] = Game()
     return code
     
-
-@app.route("/api/game", methods=["GET"])
-@cross_origin()
-def games():
-    return jsonify({"games":game_codes})
-
 @app.route("/api/game/create", methods=["GET"])
 @cross_origin()
 def create_game():
@@ -39,7 +34,7 @@ def join_game():
     if "gameCode" in request.args:
         gameCode = request.args.get("gameCode")
         if gameCode:
-            if gameCode in game_codes:
+            if gameCode in GAMES:
                 # handle joining the game
                 return jsonify({"response":"OK"})
             else:
@@ -49,6 +44,16 @@ def join_game():
 
     else:
         return make_response(jsonify({"error":"supply a game code"}), 400)
+
+@app.route("/api/game", methods=["GET"])
+@cross_origin()
+def games():
+    return jsonify({"games":GAMES})
+
+@app.route("/api/game/<gameCode>", methods=["GET"])
+@cross_origin()
+def game(gameCode):
+    return json.dumps(GAMES[gameCode].__dict__)
 
 
 if __name__ == '__main__':

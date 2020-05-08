@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { useHistory } from 'react-router-dom';
 import './App.css';
 import './bootstrap.min.css'
 import JoinGameForm from './JoinGameForm';
@@ -6,6 +7,11 @@ import JoinGameForm from './JoinGameForm';
 
 
 function App() {
+    let history = useHistory("");
+
+    function enterGame(gameCode) {
+        history.replace(`/game/${gameCode}`);
+    }
 
     function joinGame(code) {
         console.log(`attempting to join game ${code}`);
@@ -16,14 +22,20 @@ function App() {
             }
         )
         .then(res => res.json())
-        .then(data => console.log(data));
+        .then(data => {
+            console.log(data);
+            enterGame(code);
+        });
     }
 
     function createGame() {
         console.log("creating new game");
         fetch("http://localhost:5000/api/game/create")
         .then(res => res.json())
-        .then(data => console.log(data));
+        .then(data => {
+            console.log(data);
+            enterGame(data.gameCode);
+        });
     }
 
     const [showJoin, setShowJoin] = useState(false);

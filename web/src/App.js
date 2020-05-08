@@ -8,11 +8,22 @@ import JoinGameForm from './JoinGameForm';
 function App() {
 
     function joinGame(code) {
-        console.log(`join game ${code}`);
+        console.log(`attempting to join game ${code}`);
+        fetch(`http://localhost:5000/api/joinGame?gameCode=${code}`, 
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json"}
+            }
+        )
+        .then(res => res.json())
+        .then(data => console.log(data));
     }
 
     function createGame() {
         console.log("creating new game");
+        fetch("http://localhost:5000/api/createGame")
+        .then(res => res.json())
+        .then(data => console.log(data));
     }
 
     const [showJoin, setShowJoin] = useState(false);

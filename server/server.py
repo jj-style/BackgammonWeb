@@ -26,6 +26,7 @@ def generate_game_code():
 def create_game():
     if request.method == "GET":
         code = generate_game_code()
+        GAMES[code].add_player(request.host_url)
         return jsonify({"gameCode":code})
 
 @app.route("/api/game/join", methods=["POST"])
@@ -36,7 +37,11 @@ def join_game():
         if gameCode:
             if gameCode in GAMES:
                 # handle joining the game
-                return jsonify({"response":"OK"})
+                if (GAMES[gameCode].number_of_players == 1):
+                    GAMES[gameCode].add_player(request.host_url)
+                    return jsonify({"response":"OK"})
+                else:
+                    return make_response(jsonify({"error":"game already full"}), 400)
             else:
                 return make_response(jsonify({"error":"game not found"}), 400)
         else:

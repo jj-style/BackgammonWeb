@@ -24,7 +24,10 @@ function App() {
         .then(res => res.json())
         .then(data => {
             console.log(data);
-            enterGame(code);
+            if (data.error)
+                console.log(data.error);
+            else
+                enterGame(code);
         });
     }
 

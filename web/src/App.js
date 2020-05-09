@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import './App.css';
 import './bootstrap.min.css'
 import JoinGameForm from './JoinGameForm';
-
+import CreateGameForm from './CreateGameForm';
 
 
 function App() {
@@ -13,9 +13,9 @@ function App() {
         history.replace(`/game/${gameCode}`);
     }
 
-    function joinGame(code) {
-        console.log(`attempting to join game ${code}`);
-        fetch(`http://localhost:5000/api/game/join?gameCode=${code}`, 
+    function joinGame(code, name) {
+        console.log(`attempting to join game ${code} for ${name}`);
+        fetch(`http://localhost:5000/api/game/join?gameCode=${code}&name=${name}`, 
             {
                 method: "POST",
                 headers: {"Content-Type": "application/json"}
@@ -31,9 +31,9 @@ function App() {
         });
     }
 
-    function createGame() {
-        console.log("creating new game");
-        fetch("http://localhost:5000/api/game/create")
+    function createGame(name) {
+        console.log("creating new game for " + name);
+        fetch(`http://localhost:5000/api/game/create?name=${name}`)
         .then(res => res.json())
         .then(data => {
             console.log(data);
@@ -41,7 +41,7 @@ function App() {
         });
     }
 
-    const [showJoin, setShowJoin] = useState(false);
+    const [showFormOption, setShowFormOption] = useState(0); // 0 = none, 1 = create, 2 = join
 
     return (
         <div className="container-fluid">
@@ -53,13 +53,15 @@ function App() {
             <div className="row">
                 <div className="mx-auto">
                     <div className="btn-group">
-                        <button type="button" className="btn btn-outline-info" onClick={() => createGame()}>Create Game</button>
-                        <button type="button" className="btn btn-outline-info" onClick={() => setShowJoin(true)}>Join Game</button>
+                        <button type="button" className="btn btn-outline-info" onClick={() => setShowFormOption(1)}>Create Game</button>
+                        <button type="button" className="btn btn-outline-info" onClick={() => setShowFormOption(2)}>Join Game</button>
                     </div>
                 </div>
             </div>
             
-            { showJoin ? <JoinGameForm joinGame={joinGame} hideJoinForm={() => setShowJoin(false)}/> : null }
+            { showFormOption === 2 ? <JoinGameForm joinGame={joinGame} hideJoinForm={() => setShowFormOption(0)}/> : null }
+            { showFormOption === 1 ? <CreateGameForm createGame={createGame} hideCreateForm={() => setShowFormOption(0)}/> : null }
+
         </div>
     );
 }

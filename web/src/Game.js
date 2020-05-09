@@ -23,7 +23,7 @@ const Game = () => {
 
     const [board, setBoard] = useState([]);
     const [start, setStart] = useState(false);
-    const [timer, setTimer] = useState(null);
+    const [players, setPlayers] = useState(null);
 
     useEffect(() => {
 
@@ -33,35 +33,47 @@ const Game = () => {
             .then(data => {
                 console.log(data);
                 setBoard(data.board);
+                setPlayers(data.players)
                 setStart(data.players.length === 2);
             });
         } 
         fetchGameData();
-        setTimer(setInterval(() => fetchGameData(), 3000));
-        return () => { clearInterval(timer); setTimer(null); }
+        let timer = setInterval(() => fetchGameData(), 3000);
+        return () => { clearInterval(timer); timer=null; }
     },[gameCode]);
 
     return (
         <div className="container-fluid">
-            <h1>Game {gameCode}</h1>
+            <div className="row">
+                <div className="mx-auto">
+                    <h1>Game {gameCode}</h1>
+                </div>
+            </div>
             {!start ? 
-                <div className="alert alert-danger" role="alert">
-                    Waiting for other player...
+                <div className="row">
+                    <div className="mx-auto alert alert-danger" role="alert">
+                        Waiting for other player...
+                    </div>
                 </div>
             :
-            null
+            <div className="mainGame">
+                <div className="row">
+                    <div className="mx-auto">
+                        <h4>{players[0]} vs {players[1]}</h4>
+                    </div>
+                </div>
+                <div className="row board-row">
+                    {board.slice(0,12).map((value, index) => {
+                        return <Spike key={index} index={index} board={board.slice(0,12)} direction="down" color={index%2===0 ? "dark" : "light" }/>
+                    })}
+                </div>
+                <div className="row board-row">
+                    {board.slice(12,24).map((value, index) => {
+                        return <Spike key={index} index={index} board={board.slice(12,24)} direction="up" color={index%2===0 ? "dark" : "light" }/>
+                    })}
+                </div>
+            </div>
             }
-            <div className="row board-row">
-                {board.slice(0,12).map((value, index) => {
-                    return <Spike key={index} index={index} board={board.slice(0,12)} direction="down" color={index%2===0 ? "dark" : "light" }/>
-                })}
-            </div>
-            
-            <div className="row board-row">
-                {board.slice(12,24).map((value, index) => {
-                    return <Spike key={index} index={index} board={board.slice(12,24)} direction="up" color={index%2===0 ? "dark" : "light" }/>
-                })}
-            </div>
         </div>
     );
 }

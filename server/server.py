@@ -5,7 +5,7 @@ import random, json
 from backgammon.game import Game
 
 app = Flask(__name__)
-cors = CORS(app)
+CORS(app)
 
 GAMES = {}
 
@@ -26,7 +26,11 @@ def generate_game_code():
 def create_game():
     if request.method == "GET":
         code = generate_game_code()
-        GAMES[code].add_player(request.host_url)
+        if request.args.get("name"):
+            print(request.args.get("name"))
+            GAMES[code].add_player(request.args.get("name"))
+        else:
+            return make_response(jsonify({"error":"please enter a display name"}), 400)
         return jsonify({"gameCode":code})
 
 @app.route("/api/game/join", methods=["POST"])
@@ -38,8 +42,14 @@ def join_game():
             if gameCode in GAMES:
                 # handle joining the game
                 if (GAMES[gameCode].number_of_players == 1):
-                    GAMES[gameCode].add_player(request.host_url)
-                    return jsonify({"response":"OK"})
+                    if request.args.get("name"):
+                        if request.args.get("name") not in GAMES[gameCode].players:
+                            GAMES[gameCode].add_player(request.args.get("name"))
+                            return jsonify({"response":"OK"})
+                        else:
+                            return make_response(jsonify({"error":"name already in use in the game"}), 400)
+                    else:
+                        return make_response(jsonify({"error":"please enter a display name"}), 400)
                 else:
                     return make_response(jsonify({"error":"game already full"}), 400)
             else:

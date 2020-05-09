@@ -32,17 +32,41 @@
 	height: 30px;
 	width: 30px;
 	border-radius: 50%;
-  }
+}
 
-  .circle-black {
-	  background-color: black;
-  }
+.circle-black {
+	background-color: black;
+}
 
-  .circle-white {
-	  background-color: white;
-  }
+.circle-white {
+	background-color: white;
+}
 
-  .board {
-	  background-color: darkgreen;
-	  border: 10px solid #966F33;
-  }
+.board {
+	background-color: darkgreen;
+	border: 10px solid #966F33;
+
+	/* bar in middle */
+	/* background-image: linear-gradient(#966F33, #966F33);
+	background-size: 1% 100%;
+	background-repeat: no-repeat;
+	background-position: center center; */
+}
+
+.spike {
+	position: relative;	
+}
+
+.piece {
+	margin-bottom: 2px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.piece-up { /* piece on upward spike (so on bottom row) */
+	transform: translate(-50%, 275%);
+}
+
+.piece-down { /* piece on downward spike (so on top row) */
+	transform: translate(-50%, -800%);
+}

@@ -6,10 +6,10 @@ import "./Game.css";
 const Spike = ({index,board,direction,color}) => {
     return (
         <div className="col-1">
-            <div className={`triangle-${direction}-${color} triangle-${direction}`}>
+            <div className={`spike triangle-${direction}-${color} triangle-${direction}`}>
                 {
                     [...Array(Math.abs(board[index])).keys()].map((value,i) => {
-                        return <div key={i} className={`circle circle-${board[index]<0 ? "white" : "black"}`}></div>
+                        return <div key={i} className={`piece piece-${direction} circle circle-${board[index]<0 ? "white" : "black"}`}></div>
                     })
                 }
             </div>
@@ -69,8 +69,8 @@ const Game = () => {
                         })}
                     </div>
                     <div className="row">
-                        {board.slice(12,24).map((value, index) => {
-                            return <Spike key={index} index={index} board={board.slice(12,24)} direction="up" color={index%2!==0 ? "dark" : "light" }/>
+                        {board.slice(12,24).reverse().map((value, index) => {
+                            return <Spike key={11-index} index={11-index} board={board.slice(12,24)} direction="up" color={index%2!==0 ? "dark" : "light" }/>
                         })}
                     </div>
                 </div>

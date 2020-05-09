@@ -42,8 +42,7 @@
 	  background-color: white;
   }
 
-  .board-row:after {
-	clear: both;
-	content: "";
-	display: table;
+  .board {
+	  background-color: darkgreen;
+	  border: 10px solid #966F33;
   }

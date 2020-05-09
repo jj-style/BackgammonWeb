@@ -62,15 +62,17 @@ const Game = () => {
                         <h4>{players[0]} vs {players[1]}</h4>
                     </div>
                 </div>
-                <div className="row board-row">
-                    {board.slice(0,12).map((value, index) => {
-                        return <Spike key={index} index={index} board={board.slice(0,12)} direction="down" color={index%2===0 ? "dark" : "light" }/>
-                    })}
-                </div>
-                <div className="row board-row">
-                    {board.slice(12,24).map((value, index) => {
-                        return <Spike key={index} index={index} board={board.slice(12,24)} direction="up" color={index%2===0 ? "dark" : "light" }/>
-                    })}
+                <div className="board">
+                    <div className="row" style={{marginBottom:"70px"}}>
+                        {board.slice(0,12).map((value, index) => {
+                            return <Spike key={index} index={index} board={board.slice(0,12)} direction="down" color={index%2===0 ? "dark" : "light" }/>
+                        })}
+                    </div>
+                    <div className="row">
+                        {board.slice(12,24).map((value, index) => {
+                            return <Spike key={index} index={index} board={board.slice(12,24)} direction="up" color={index%2!==0 ? "dark" : "light" }/>
+                        })}
+                    </div>
                 </div>
             </div>
             }

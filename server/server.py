@@ -55,11 +55,16 @@ def join_game():
 def games():
     return jsonify({"games":GAMES})
 
-@app.route("/api/game/<gameCode>", methods=["GET"])
+@app.route("/api/game/<gameCode>", methods=["GET","POST"])
 @cross_origin()
 def game(gameCode):
-    return json.dumps(GAMES[gameCode].__dict__)
-
+    if request.method == "GET":
+        return json.dumps(GAMES[gameCode].__dict__)
+    elif request.method == "POST":
+        from_index = request.args.get("fromIndex")
+        to_index = request.args.get("toIndex")
+        GAMES[gameCode].move(int(from_index), int(to_index))
+        return jsonify({"response":"OK"})
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -9,8 +9,8 @@ import CreateGameForm from './CreateGameForm';
 function App() {
     let history = useHistory("");
 
-    function enterGame(gameCode) {
-        history.replace(`/game/${gameCode}`);
+    function enterGame(gameCode,name) {
+        history.replace(`/game/${gameCode}?name=${name}`);
     }
 
     function joinGame(code, name) {
@@ -27,7 +27,7 @@ function App() {
             if (data.error)
                 console.log(data.error);
             else
-                enterGame(code);
+                enterGame(code,name);
         });
     }
 
@@ -37,7 +37,7 @@ function App() {
         .then(res => res.json())
         .then(data => {
             console.log(data);
-            enterGame(data.gameCode);
+            enterGame(data.gameCode,name);
         });
     }
 

@@ -20,11 +20,14 @@ const Spike = ({index,board,direction,color}) => {
 const Game = () => {
 
     let { gameCode } = useParams();
+    const queryString = require('query-string');
+    const parsed = queryString.parse(window.location.search);
 
     const [board, setBoard] = useState([]);
     const [start, setStart] = useState(false);
     const [players, setPlayers] = useState(null);
     const [currentPlayer, setCurrentPlayer] = useState(null);
+    const [thisPlayer, setThisPlayer] = useState(null);
 
     useEffect(() => {
 
@@ -37,12 +40,13 @@ const Game = () => {
                 setPlayers(data.players)
                 setStart(data.players.length === 2);
                 setCurrentPlayer( (data.players.length === 2) ? data.players[data.current_player] : "waiting for player's to join");
+                setThisPlayer(data.players.indexOf(parsed.name));
             });
         } 
         fetchGameData();
         let timer = setInterval(() => fetchGameData(), 3000);
         return () => { clearInterval(timer); timer=null; }
-    },[gameCode]);
+    },[gameCode,parsed.name]);
 
     useEffect(() => {
         document.title = `${currentPlayer}'s turn`;
@@ -65,7 +69,7 @@ const Game = () => {
             <div className="mainGame">
                 <div className="row">
                     <div className="mx-auto">
-                        <h4>{players[0]} vs {players[1]}</h4>
+                        <h4>{ thisPlayer === 0 ? <strong>{players[0]}</strong> : players[0]} vs { thisPlayer === 1 ? <strong>{players[1]}</strong> : players[1]}</h4>
                     </div>
                 </div>
                 <div className="board">

@@ -10,7 +10,7 @@ function App() {
     let history = useHistory("");
 
     function enterGame(gameCode,name) {
-        history.replace(`/game/${gameCode}?name=${name}`);
+        history.push(`/game/${gameCode}?name=${name}`);
     }
 
     function joinGame(code, name) {

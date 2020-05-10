@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const JoinGameForm = ({joinGame, hideJoinForm}) => {
 
@@ -9,6 +9,16 @@ const JoinGameForm = ({joinGame, hideJoinForm}) => {
 
     const [code, setCode] = useState("");
     const [name, setName] = useState("");
+    const [disable, setDisabled] = useState(false);
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        inputRef.current.focus();
+    },[inputRef]);
+
+    useEffect(() => {
+        setDisabled(code.length === 0 || name.length === 0);
+    },[code, name]);
 
     return (
         <div className="row">
@@ -16,7 +26,7 @@ const JoinGameForm = ({joinGame, hideJoinForm}) => {
                 <form onSubmit={submit}>
                     <div className="form-group">
                         <label htmlFor="gameCodeInput">Game Code</label>
-                        <input id="gameCodeInput" type="text" className="form-control" placeholder="e.g. ABC123" value={code} onChange={(e) => {setCode(e.target.value)}}></input>
+                        <input ref={inputRef} id="gameCodeInput" type="text" className="form-control" placeholder="e.g. ABC123" value={code} onChange={(e) => {setCode(e.target.value)}}></input>
                     </div>
                     <div className="form-group">
                         <label htmlFor="displayNameInput">Display Name</label>
@@ -27,7 +37,7 @@ const JoinGameForm = ({joinGame, hideJoinForm}) => {
                         <button className="btn btn-danger" onClick={() => {hideJoinForm()}}>Cancel</button>
                         </div>
                         <div className="col-auto">
-                        <button className="btn btn-success" onClick={(e) => {submit(e)}}>Join</button>
+                        <button className={`btn btn-success ${disable?"disabled":null}`} onClick={(e) => {submit(e)}}>Join</button>
                         </div>
                     </div>
                 </form>

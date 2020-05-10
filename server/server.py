@@ -45,6 +45,7 @@ def join_game():
                     if request.args.get("name"):
                         if request.args.get("name") not in GAMES[gameCode].players:
                             GAMES[gameCode].add_player(request.args.get("name"))
+                            GAMES[gameCode].start_game()
                             return jsonify({"response":"OK"})
                         else:
                             return make_response(jsonify({"error":"name already in use in the game"}), 400)

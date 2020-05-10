@@ -1,12 +1,18 @@
 from copy import deepcopy
+import random
 
 class Game():
 
     def __init__(self):
-        self.board = self.setInitialBoard([0 for i in range(24)])
+        self.board = self.set_initial_board([0 for i in range(24)])
+        self.taken_pieces = []
         self.players = []
+        self.current_player = None
 
-    def setInitialBoard(self, board):
+    def start_game(self):
+        self.current_player = random.randint(0,1)
+
+    def set_initial_board(self, board):
         new_board = deepcopy(board)
         new_board[0] = 2
         new_board[5] = -5
@@ -24,6 +30,10 @@ class Game():
     @property
     def number_of_players(self):
         return len(self.players)
+
+    @property
+    def current_player_name(self):
+        return self.players[self.current_player]
 
     def move(self, from_index, to_index):
         turn = self.board[from_index] < 0 # <0 = white, >0 = black

@@ -24,6 +24,7 @@ const Game = () => {
     const [board, setBoard] = useState([]);
     const [start, setStart] = useState(false);
     const [players, setPlayers] = useState(null);
+    const [currentPlayer, setCurrentPlayer] = useState(null);
 
     useEffect(() => {
 
@@ -35,12 +36,17 @@ const Game = () => {
                 setBoard(data.board);
                 setPlayers(data.players)
                 setStart(data.players.length === 2);
+                setCurrentPlayer( (data.players.length === 2) ? data.players[data.current_player] : "waiting for player's to join");
             });
         } 
         fetchGameData();
         let timer = setInterval(() => fetchGameData(), 3000);
         return () => { clearInterval(timer); timer=null; }
     },[gameCode]);
+
+    useEffect(() => {
+        document.title = `${currentPlayer}'s turn`;
+    },[currentPlayer]);
 
     return (
         <div className="container-fluid">

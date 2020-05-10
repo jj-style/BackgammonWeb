@@ -4,12 +4,17 @@ import "./bootstrap.min.css";
 import "./Game.css";
 
 const Spike = ({index,board,direction,color}) => {
+
+    const spikeClicked = () => {
+        console.log(`Cliked spike ${index}`);
+    }
+
     return (
         <div className="col-1">
-            <div className={`spike triangle-${direction}-${color} triangle-${direction}`}>
+            <div className={`spike triangle-${direction}-${color} triangle-${direction}`} onClick={() => spikeClicked()}>
                 {
-                    [...Array(Math.abs(board[index])).keys()].map((value,i) => {
-                        return <div key={i} className={`piece piece-${direction} circle circle-${board[index]<0 ? "white" : "black"}`}></div>
+                    [...Array(Math.abs(board[index%12])).keys()].map((value,i) => {
+                        return <div key={i} className={`piece piece-${direction} circle circle-${board[index%12]<0 ? "white" : "black"}`}></div>
                     })
                 }
             </div>
@@ -80,7 +85,7 @@ const Game = () => {
                     </div>
                     <div className="row">
                         {board.slice(12,24).reverse().map((value, index) => {
-                            return <Spike key={11-index} index={11-index} board={board.slice(12,24)} direction="up" color={index%2!==0 ? "dark" : "light" }/>
+                            return <Spike key={11+index} index={23-index} board={board.slice(12,24)} direction="up" color={index%2!==0 ? "dark" : "light" }/>
                         })}
                     </div>
                 </div>

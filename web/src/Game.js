@@ -3,18 +3,14 @@ import "./bootstrap.min.css";
 import "./Game.css";
 import { useHistory } from 'react-router-dom';
 
-const Spike = ({index,board,direction,color}) => {
-
-    const spikeClicked = () => {
-        console.log(`Cliked spike ${index}`);
-    }
+const Spike = ({index,pieces,direction,color,spikeClicked}) => {
 
     return (
         <div className="col-1">
-            <div className={`spike triangle-${direction}-${color} triangle-${direction}`} onClick={() => spikeClicked()}>
+            <div className={`spike triangle-${direction}-${color} triangle-${direction}`} onClick={() => spikeClicked(index)}>
                 {
-                    [...Array(Math.abs(board[index%12])).keys()].map((value,i) => {
-                        return <div key={i} className={`piece piece-${direction} circle circle-${board[index%12]<0 ? "white" : "black"}`}></div>
+                    [...Array(Math.abs(pieces)).keys()].map((value,i) => {
+                        return <div key={i} className={`piece piece-${direction} circle circle-${pieces<0 ? "white" : "black"}`}></div>
                     })
                 }
             </div>
@@ -34,6 +30,11 @@ const Game = ({gameCode, name}) => {
     const [players, setPlayers] = useState(null);
     const [currentPlayer, setCurrentPlayer] = useState(null);
     const [thisPlayer, setThisPlayer] = useState(null);
+
+    // Game flow stuff
+    const [rolled, setRolled] = useState(false);
+    const [source, setSource] = useState(null);
+    const [dest, setDest] = useState(null);
 
     useEffect(() => {
 
@@ -58,6 +59,77 @@ const Game = ({gameCode, name}) => {
         document.title = `${currentPlayer}'s turn`;
     },[currentPlayer]);
 
+    useEffect(() => {
+        if (source !== null && dest !== null) { // both have been so selected so must be a valid move
+            fetch(`http://localhost:5000/api/game/${gameCode}?fromIndex=${source}&toIndex=${dest}`, {method:"POST"})
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                setRolled(null);
+                setSource(null);
+                setDest(null);
+            });
+        }
+    },[source, dest, gameCode]);
+
+    function spikeClicked(index) {
+
+        const validSource = (index) => {
+            if (board[index] < 0 && thisPlayer === 0) { // white
+                return true;
+            } else {
+                if (board[index] > 0 && thisPlayer === 1) { // black
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        const validDest = (source, index) => {
+            if (thisPlayer === 0) { // white
+                if (board[index] <= 0 || board[index] === 1) {
+                    // if dest is dice roll away from source
+                    return true;
+                } else {
+                    return false;
+                }
+            } else { // black
+                if (board[index] >= 0 || board[index] === -1) {
+                    // if dest is dice roll away from source
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        console.log(`Cliked spike ${index}`);
+        if (currentPlayer === players[thisPlayer]) {
+            if (rolled) {
+                if (source === null) {
+                    if (validSource(index)) { // validation in this if statement
+                        console.log("valid source");
+                        setSource(index);
+                    } else {
+                        console.log(`Cannot select spike ${index} as a source`);
+                    }
+                } else { // dest
+                    if (validDest(source,index)) {
+                        console.log("valid destination");
+                        setDest(index);
+                    } else {
+                        console.log(`Cannot select spike ${index} as a destination`)
+                    }
+                }
+            } else {
+                console.log("Please roll first");
+            }
+        } else {
+            console.log("not your turn");
+        }
+    }
+
     return (
         <div className="container-fluid">
             <div className="row">
@@ -76,17 +148,22 @@ const Game = ({gameCode, name}) => {
                 <div className="row">
                     <div className="mx-auto">
                         <h4>{ thisPlayer === 0 ? <strong>{players[0]}</strong> : players[0]} vs { thisPlayer === 1 ? <strong>{players[1]}</strong> : players[1]}</h4>
+                        { (currentPlayer === players[thisPlayer] && !rolled) ?
+                            <button type="button" className="btn btn-dark" onClick={() => {setRolled(true)}}>Roll</button>
+                        :
+                        null
+                        }
                     </div>
                 </div>
                 <div className="board">
                     <div className="row" style={{marginBottom:"70px"}}>
                         {board.slice(0,12).map((value, index) => {
-                            return <Spike key={index} index={index} board={board.slice(0,12)} direction="down" color={index%2===0 ? "dark" : "light" }/>
+                            return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} />
                         })}
                     </div>
                     <div className="row">
                         {board.slice(12,24).reverse().map((value, index) => {
-                            return <Spike key={11+index} index={23-index} board={board.slice(12,24)} direction="up" color={index%2!==0 ? "dark" : "light" }/>
+                            return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} />
                         })}
                     </div>
                 </div>

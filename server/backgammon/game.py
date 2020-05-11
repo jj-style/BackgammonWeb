@@ -45,3 +45,5 @@ class Game():
         else: # black
             self.board[from_index] -= 1
             self.board[to_index] += 1
+
+        self.current_player ^= 1

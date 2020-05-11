@@ -47,14 +47,14 @@ const Home = ({dispatch}) => {
     const [showFormOption, setShowFormOption] = useState(0); // 0 = none, 1 = create, 2 = join
 
     return (
-        <div class="flex-wrapper">
+        <div className="flex-wrapper">
         <div className="container-fluid main">
             <div className="row">
                 <div className="col-12">
-                    <div class="jumbotron jumbotron-fluid">
-                        <div class="container-fluid">
-                            <h1 class="display-4">Backgammon</h1>
-                            <p class="lead">A simple online backgammon game to play with friends.</p>
+                    <div className="jumbotron jumbotron-fluid">
+                        <div className="container-fluid">
+                            <h1 className="display-4">Backgammon</h1>
+                            <p className="lead">A simple online backgammon game to play with friends.</p>
                         </div>
                     </div>
                 </div>
@@ -71,8 +71,8 @@ const Home = ({dispatch}) => {
             { showFormOption === 2 ? <JoinGameForm joinGame={joinGame} hideJoinForm={() => setShowFormOption(0)}/> : null }
             { showFormOption === 1 ? <CreateGameForm createGame={createGame} hideCreateForm={() => setShowFormOption(0)}/> : null }
 
-            {/* <footer id="sticky-footer" class="py-4 bg-dark text-white-50">
-                <div class="container text-center">
+            {/* <footer id="sticky-footer" className="py-4 bg-dark text-white-50">
+                <div className="container text-center">
                     <small>Copyright &copy; Your Website</small>
                 </div>
             </footer> */}

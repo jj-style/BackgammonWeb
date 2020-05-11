@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import "./bootstrap.min.css";
 import "./Game.css";
+import { useHistory } from 'react-router-dom';
 
 const Spike = ({index,board,direction,color}) => {
 
@@ -22,11 +22,12 @@ const Spike = ({index,board,direction,color}) => {
     );
 }
 
-const Game = () => {
-
-    let { gameCode } = useParams();
-    const queryString = require('query-string');
-    const parsed = queryString.parse(window.location.search);
+const Game = ({gameCode, name}) => {
+    const history = useHistory();
+    
+    if (gameCode === null || name === null) {
+        history.push("/");
+    }
 
     const [board, setBoard] = useState([]);
     const [start, setStart] = useState(false);
@@ -45,13 +46,13 @@ const Game = () => {
                 setPlayers(data.players)
                 setStart(data.players.length === 2);
                 setCurrentPlayer( (data.players.length === 2) ? data.players[data.current_player] : "waiting for player's to join");
-                setThisPlayer(data.players.indexOf(parsed.name));
+                setThisPlayer(data.players.indexOf(name));
             });
         } 
         fetchGameData();
         let timer = setInterval(() => fetchGameData(), 3000);
         return () => { clearInterval(timer); timer=null; }
-    },[gameCode,parsed.name]);
+    },[gameCode, name]);
 
     useEffect(() => {
         document.title = `${currentPlayer}'s turn`;

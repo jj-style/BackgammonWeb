@@ -1,17 +1,17 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useHistory } from 'react-router-dom';
-import './App.css';
+import './Home.css';
 import './bootstrap.min.css'
 import JoinGameForm from './JoinGameForm';
 import CreateGameForm from './CreateGameForm';
 
 
-function App() {
+const Home = ({dispatch}) => {
     let history = useHistory("");
 
-    function enterGame(gameCode,name) {
-        history.push(`/game/${gameCode}?name=${name}`);
-    }
+    useEffect(() => {
+        document.title = "Backgammon";
+    },[]);
 
     function joinGame(code, name) {
         console.log(`attempting to join game ${code} for ${name}`);
@@ -24,10 +24,12 @@ function App() {
         .then(res => res.json())
         .then(data => {
             console.log(data);
-            if (data.error)
+            if (data.error) {
                 console.log(data.error);
-            else
-                enterGame(code,name);
+            } else {
+                dispatch({type:"JOIN", gameCode:code, name:name});
+                history.push("/game");
+            }
         });
     }
 
@@ -37,7 +39,8 @@ function App() {
         .then(res => res.json())
         .then(data => {
             console.log(data);
-            enterGame(data.gameCode,name);
+            dispatch({type:"CREATE", gameCode:data.gameCode, name:name});
+            history.push("/game");
         });
     }
 
@@ -80,4 +83,4 @@ function App() {
     );
 }
 
-export default App;
+export default Home;

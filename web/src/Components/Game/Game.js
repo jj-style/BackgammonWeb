@@ -111,14 +111,22 @@ const Game = ({gameCode, name}) => {
             if (thisPlayer === 0) { // white
                 if (board[index] <= 0 || board[index] === 1) {
                     // if dest is dice roll away from source
-                    return true;
+                    if (dice.includes(Math.abs(source-index)) && index < source ) {
+                        return true;
+                    } else {
+                        return false
+                    }
                 } else {
                     return false;
                 }
             } else { // black
                 if (board[index] >= 0 || board[index] === -1) {
                     // if dest is dice roll away from source
-                    return true;
+                    if (dice.includes(Math.abs(source-index)) && index > source ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     return false;
                 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "../../bootstrap.min.css";
 import "./Game.css";
+
 import { useHistory } from 'react-router-dom';
 
 const Spike = ({index,pieces,direction,color,spikeClicked}) => {
@@ -30,11 +31,21 @@ const Game = ({gameCode, name}) => {
     const [players, setPlayers] = useState(null);
     const [currentPlayer, setCurrentPlayer] = useState(null);
     const [thisPlayer, setThisPlayer] = useState(null);
+    const [dice, setDice] = useState([]);
 
     // Game flow stuff
     const [rolled, setRolled] = useState(false);
     const [source, setSource] = useState(null);
     const [dest, setDest] = useState(null);
+
+    const diceFace = [
+        require("../../Assets/Dice/1.png"),
+        require("../../Assets/Dice/2.png"),
+        require("../../Assets/Dice/3.png"),
+        require("../../Assets/Dice/4.png"),
+        require("../../Assets/Dice/5.png"),
+        require("../../Assets/Dice/6.png"),
+    ];
 
     useEffect(() => {
 
@@ -48,6 +59,7 @@ const Game = ({gameCode, name}) => {
                 setStart(data.players.length === 2);
                 setCurrentPlayer( (data.players.length === 2) ? data.players[data.current_player] : "waiting for player's to join");
                 setThisPlayer(data.players.indexOf(name));
+                setDice(data.dice);
             });
         } 
         fetchGameData();
@@ -71,6 +83,15 @@ const Game = ({gameCode, name}) => {
             });
         }
     },[source, dest, gameCode]);
+
+    function rollDice() {
+        fetch(`http://localhost:5000/api/game/${gameCode}/roll`, {method:"POST"})
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            setRolled(true);
+        });
+    }
 
     function spikeClicked(index) {
 
@@ -147,11 +168,24 @@ const Game = ({gameCode, name}) => {
             <div className="mainGame">
                 <div className="row">
                     <div className="mx-auto">
-                        <h4>{ thisPlayer === 0 ? <strong>{players[0]}</strong> : players[0]} vs { thisPlayer === 1 ? <strong>{players[1]}</strong> : players[1]}</h4>
+                        <h4>
+                            { thisPlayer === 0 ? <strong>{players[0]}</strong> : players[0]}
+                            (white) vs (black)  
+                            { thisPlayer === 1 ? <strong>{players[1]}</strong> : players[1]}
+                        </h4>
                         { (currentPlayer === players[thisPlayer] && !rolled) ?
-                            <button type="button" className="btn btn-dark" onClick={() => {setRolled(true)}}>Roll</button>
+                            <button type="button" className="btn btn-dark roll-btn" onClick={() => {rollDice();}}>Roll</button>
                         :
                         null
+                        }
+                        { (rolled && dice.length > 0) ?
+                            dice.map((value,index) => {
+                                return (
+                                    <img key={index} src={diceFace[value-1]} className="img img-fluid dice-img" alt={`dice face showing ${value}`}  />
+                                );
+                            })
+                            :
+                            null
                         }
                     </div>
                 </div>

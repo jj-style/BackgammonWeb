@@ -70,3 +70,14 @@
 .piece-down { /* piece on downward spike (so on top row) */
 	transform: translate(-50%, -800%);
 }
+
+.roll-btn {
+	display: block;
+	margin: 0 auto;
+}
+
+.dice-img {
+	display: inline-block;
+	height: 50px;
+	margin: 0 auto;
+}

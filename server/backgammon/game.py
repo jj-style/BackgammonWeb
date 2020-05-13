@@ -8,6 +8,7 @@ class Game():
         self.taken_pieces = []
         self.players = []
         self.current_player = None
+        self.dice = []
 
     def start_game(self):
         self.current_player = random.randint(0,1)
@@ -34,6 +35,14 @@ class Game():
     @property
     def current_player_name(self):
         return self.players[self.current_player]
+
+    def roll(self):
+        num1 = random.randint(1,6)
+        num2 = random.randint(1,6)
+        if num1 == num2:
+            self.dice = [num1 for i in range(4)]
+        else:
+            self.dice = [num1, num2]
 
     def move(self, from_index, to_index):
         turn = self.board[from_index] < 0 # <0 = white, >0 = black

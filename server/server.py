@@ -77,5 +77,13 @@ def game(gameCode):
         GAMES[gameCode].move(int(from_index), int(to_index))
         return jsonify({"response":"OK"})
 
+@app.route("/api/game/<gameCode>/roll", methods=["POST"])
+@cross_origin()
+def roll_dice(gameCode):
+    if request.method == "POST":
+        GAMES[gameCode].roll()
+        return jsonify({"response":"OK"})
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -4,6 +4,7 @@ import './index.css';
 import Home from './Components/Home/Home';
 import Game from './Components/Game/Game';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import {Helmet} from 'react-helmet';
 
 const App = () => {
 
@@ -40,8 +41,10 @@ const App = () => {
 }
 
 const Application = () => {
+    const bgColor = "Cornsilk";
     return (
         <React.StrictMode>
+            <Helmet bodyAttributes={{style: `background-color : ${bgColor}`}}/>
             <App />
         </React.StrictMode>
     );

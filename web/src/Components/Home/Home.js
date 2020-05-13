@@ -47,7 +47,6 @@ const Home = ({dispatch}) => {
     const [showFormOption, setShowFormOption] = useState(0); // 0 = none, 1 = create, 2 = join
 
     return (
-        <div className="flex-wrapper">
         <div className="container-fluid main">
             <div className="row">
                 <div className="col-12">
@@ -76,8 +75,6 @@ const Home = ({dispatch}) => {
                     <small>Copyright &copy; Your Website</small>
                 </div>
             </footer> */}
-
-        </div>
 
         </div>
     );

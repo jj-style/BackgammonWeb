@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import "./bootstrap.min.css";
+import "../../bootstrap.min.css";
 import "./Game.css";
 import { useHistory } from 'react-router-dom';
 

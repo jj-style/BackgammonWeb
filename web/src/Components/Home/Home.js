@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { useHistory } from 'react-router-dom';
 import './Home.css';
-import './bootstrap.min.css'
+import '../../bootstrap.min.css'
 import JoinGameForm from './JoinGameForm';
 import CreateGameForm from './CreateGameForm';
 
@@ -62,8 +62,8 @@ const Home = ({dispatch}) => {
             <div className="row">
                 <div className="mx-auto">
                     <div className="btn-group">
-                        <button type="button" className="btn btn-outline-info" onClick={() => setShowFormOption(1)}>Create Game</button>
-                        <button type="button" className="btn btn-outline-info" onClick={() => setShowFormOption(2)}>Join Game</button>
+                        <button type="button" className="btn btn-outline-info" onClick={() => setShowFormOption( showFormOption === 1 ? 0 : 1)}>Create Game</button>
+                        <button type="button" className="btn btn-outline-info" onClick={() => setShowFormOption( showFormOption === 2 ? 0 : 2)}>Join Game</button>
                     </div>
                 </div>
             </div>

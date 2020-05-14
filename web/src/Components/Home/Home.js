@@ -15,7 +15,7 @@ const Home = ({dispatch}) => {
 
     function joinGame(code, name) {
         console.log(`attempting to join game ${code} for ${name}`);
-        fetch(`http://localhost:5000/api/game/join?gameCode=${code}&name=${name}`, 
+        fetch(`api/game/join?gameCode=${code}&name=${name}`, 
             {
                 method: "POST",
                 headers: {"Content-Type": "application/json"}
@@ -35,7 +35,7 @@ const Home = ({dispatch}) => {
 
     function createGame(name) {
         console.log("creating new game for " + name);
-        fetch(`http://localhost:5000/api/game/create?name=${name}`)
+        fetch(`api/game/create?name=${name}`)
         .then(res => res.json())
         .then(data => {
             console.log(data);

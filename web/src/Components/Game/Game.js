@@ -50,7 +50,7 @@ const Game = ({gameCode, name}) => {
     useEffect(() => {
 
         const fetchGameData = async () => {
-            await fetch(`http://localhost:5000/api/game/${gameCode}`, {method:"GET"})
+            await fetch(`api/game/${gameCode}`, {method:"GET"})
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -74,7 +74,7 @@ const Game = ({gameCode, name}) => {
 
     useEffect(() => {
         if (source !== null && dest !== null) { // both have been so selected so must be a valid move
-            fetch(`http://localhost:5000/api/game/${gameCode}?fromIndex=${source}&toIndex=${dest}`, {method:"POST"})
+            fetch(`api/game/${gameCode}?fromIndex=${source}&toIndex=${dest}`, {method:"POST"})
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -86,7 +86,7 @@ const Game = ({gameCode, name}) => {
     },[source, dest, gameCode]);
 
     function rollDice() {
-        fetch(`http://localhost:5000/api/game/${gameCode}/roll`, {method:"POST"})
+        fetch(`api/game/${gameCode}/roll`, {method:"POST"})
         .then(res => res.json())
         .then(data => {
             console.log(data);

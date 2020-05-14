@@ -60,10 +60,11 @@ const Game = ({gameCode, name}) => {
                 setCurrentPlayer( (data.players.length === 2) ? data.players[data.current_player] : "waiting for player's to join");
                 setThisPlayer(data.players.indexOf(name));
                 setDice(data.dice);
+                setRolled(data.dice.length!==0);
             });
         } 
         fetchGameData();
-        let timer = setInterval(() => fetchGameData(), 3000);
+        let timer = setInterval(() => fetchGameData(), 1000);
         return () => { clearInterval(timer); timer=null; }
     },[gameCode, name]);
 

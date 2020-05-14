@@ -77,7 +77,7 @@ const Game = ({gameCode, name}) => {
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                setRolled(null);
+                // setRolled(null);
                 setSource(null);
                 setDest(null);
             });
@@ -149,6 +149,8 @@ const Game = ({gameCode, name}) => {
                         setDest(index);
                     } else {
                         console.log(`Cannot select spike ${index} as a destination`)
+                        setSource(null);
+                        setDest(null);
                     }
                 }
             } else {

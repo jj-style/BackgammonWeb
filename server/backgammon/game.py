@@ -55,4 +55,6 @@ class Game():
             self.board[from_index] -= 1
             self.board[to_index] += 1
 
-        self.current_player ^= 1
+        self.dice.remove(abs(from_index-to_index))
+        if len(self.dice) == 0:
+            self.current_player ^= 1

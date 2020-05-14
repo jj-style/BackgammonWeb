@@ -57,6 +57,13 @@
 	position: relative;	
 }
 
+.spike:hover {
+    width:50%;
+    position:absolute;
+    background-color: black;
+    opacity:0.5;
+}
+
 .piece {
 	margin-bottom: 2px;
 	display: inline-block;

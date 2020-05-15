@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "../../bootstrap.min.css";
+import io from 'socket.io-client';
 import "./Game.css";
 
 import { useHistory } from 'react-router-dom';
@@ -19,7 +20,10 @@ const Spike = ({index,pieces,direction,color,spikeClicked}) => {
     );
 }
 
+const socket = io.connect('http://localhost:5000');
+
 const Game = ({gameCode, name}) => {
+
     const history = useHistory();
     
     if (gameCode === null || name === null) {
@@ -48,50 +52,70 @@ const Game = ({gameCode, name}) => {
     ];
 
     useEffect(() => {
-
-        const fetchGameData = async () => {
-            await fetch(`api/game/${gameCode}`, {method:"GET"})
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                setBoard(data.board);
-                setPlayers(data.players)
-                setStart(data.players.length === 2);
-                setCurrentPlayer( (data.players.length === 2) ? data.players[data.current_player] : "waiting for player's to join");
-                setThisPlayer(data.players.indexOf(name));
-                setDice(data.dice);
-                setRolled(data.dice.length!==0);
-            });
-        } 
-        fetchGameData();
-        let timer = setInterval(() => fetchGameData(), 1000);
-        return () => { clearInterval(timer); timer=null; }
-    },[gameCode, name]);
-
-    useEffect(() => {
         document.title = `${currentPlayer}'s turn`;
     },[currentPlayer]);
 
     useEffect(() => {
         if (source !== null && dest !== null) { // both have been so selected so must be a valid move
-            fetch(`api/game/${gameCode}?fromIndex=${source}&toIndex=${dest}`, {method:"POST"})
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                // setRolled(null);
-                setSource(null);
-                setDest(null);
-            });
+            // fetch(`api/game/${gameCode}?fromIndex=${source}&toIndex=${dest}`, {method:"POST"})
+            // .then(res => res.json())
+            // .then(data => {
+            //     console.log(data);
+            //     // setRolled(null);
+            //     setSource(null);
+            //     setDest(null);
+            // });
+            socket.emit("MOVE", gameCode, source, dest);
         }
     },[source, dest, gameCode]);
 
-    function rollDice() {
-        fetch(`api/game/${gameCode}/roll`, {method:"POST"})
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            setRolled(true);
+    useEffect(() => {
+        function subscribeToGame(code) {
+            socket.emit("SUBSCRIBE", code);
+        }
+        subscribeToGame(gameCode);
+        return () => { socket.emit("UNSUBSCRIBE", gameCode) };
+    },[gameCode]);
+
+    useEffect(() => {
+
+        function setData(data) {
+            setBoard(data.board);
+            setPlayers(data.players)
+            setStart(data.players.length === 2);
+            setCurrentPlayer( (data.players.length === 2) ? data.players[data.current_player] : "waiting for player's to join");
+            setThisPlayer(data.players.indexOf(name));
+            setDice(data.dice);
+            setRolled(data.dice.length!==0);
+        } 
+
+        socket.on("SUBSCRIBED", data => {
+            console.log("subscribed callback");
+            setData(JSON.parse(data));
         });
+
+        socket.on("NEWDATA", data => {
+            console.log("new data callback");
+            setData(JSON.parse(data));
+        });
+
+        socket.on("MOVED", data => {
+            console.log("piece moved callback");
+            setData(JSON.parse(data));
+            setSource(null);
+            setDest(null);
+        });
+    },[name]);
+
+    function rollDice() {
+        // fetch(`api/game/${gameCode}/roll`, {method:"POST"})
+        // .then(res => res.json())
+        // .then(data => {
+        //     console.log(data);
+        //     setRolled(true);
+        // });
+        socket.emit("ROLL", gameCode);
+        setRolled(true);
     }
 
     function spikeClicked(index) {

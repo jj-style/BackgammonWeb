@@ -1,11 +1,13 @@
 from flask import Flask
 from flask import request, jsonify, abort, make_response
 from flask_cors import CORS, cross_origin
+from flask_socketio import SocketIO, send, emit
 import random, json
 from backgammon.game import Game
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 GAMES = {}
 
@@ -27,7 +29,7 @@ def create_game():
     if request.method == "GET":
         code = generate_game_code()
         if request.args.get("name"):
-            print(request.args.get("name"))
+            # print(request.args.get("name"))
             GAMES[code].add_player(request.args.get("name"))
         else:
             return make_response(jsonify({"error":"please enter a display name"}), 400)
@@ -84,6 +86,24 @@ def roll_dice(gameCode):
         GAMES[gameCode].roll()
         return jsonify({"response":"OK"})
 
+@socketio.on('message')
+def handle_message(message):
+    print('received message: ' + message)
+
+@socketio.on('SUBSCRIBE')
+def subscribe_to_game(code):
+    print("subscribing to game")
+    emit("SUBSCRIBED", json.dumps(GAMES[code].__dict__))
+
+@socketio.on('ROLL')
+def roll_socket(gameCode):
+    GAMES[gameCode].roll()
+    emit("NEWDATA", json.dumps(GAMES[gameCode].__dict__))
+
+@socketio.on('MOVE')
+def move_piece_socket(game_code, from_index, to_index):
+    GAMES[game_code].move(int(from_index), int(to_index))
+    emit("MOVED", json.dumps(GAMES[game_code].__dict__))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=False)

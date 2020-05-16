@@ -1,24 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import "../../bootstrap.min.css";
+import { useHistory } from 'react-router-dom';
+import { Spike } from './Spike';
 import io from 'socket.io-client';
+import "../../bootstrap.min.css";
 import "./Game.css";
 
-import { useHistory } from 'react-router-dom';
-
-const Spike = ({index,pieces,direction,color,spikeClicked}) => {
-
-    return (
-        <div className="col-1">
-            <div className={`spike triangle-${direction}-${color} triangle-${direction}`} onClick={() => spikeClicked(index)}>
-                {
-                    [...Array(Math.abs(pieces)).keys()].map((value,i) => {
-                        return <div key={i} className={`piece piece-${direction} circle circle-${pieces<0 ? "white" : "black"}`}></div>
-                    })
-                }
-            </div>
-        </div>
-    );
-}
 
 const socket = io.connect('http://localhost:5000');
 
@@ -30,6 +16,7 @@ const Game = ({gameCode, name}) => {
         history.push("/");
     }
 
+    // Game data
     const [board, setBoard] = useState([]);
     const [start, setStart] = useState(false);
     const [players, setPlayers] = useState(null);
@@ -37,7 +24,7 @@ const Game = ({gameCode, name}) => {
     const [thisPlayer, setThisPlayer] = useState(null);
     const [dice, setDice] = useState([]);
 
-    // Game flow stuff
+    // Game flow
     const [rolled, setRolled] = useState(false);
     const [source, setSource] = useState(null);
     const [dest, setDest] = useState(null);
@@ -52,30 +39,22 @@ const Game = ({gameCode, name}) => {
     ];
 
     useEffect(() => {
-        document.title = `${currentPlayer}'s turn`;
-    },[currentPlayer]);
-
-    useEffect(() => {
-        if (source !== null && dest !== null) { // both have been so selected so must be a valid move
-            // fetch(`api/game/${gameCode}?fromIndex=${source}&toIndex=${dest}`, {method:"POST"})
-            // .then(res => res.json())
-            // .then(data => {
-            //     console.log(data);
-            //     // setRolled(null);
-            //     setSource(null);
-            //     setDest(null);
-            // });
-            socket.emit("MOVE", gameCode, source, dest);
-        }
-    },[source, dest, gameCode]);
-
-    useEffect(() => {
         function subscribeToGame(code) {
             socket.emit("SUBSCRIBE", code);
         }
         subscribeToGame(gameCode);
         return () => { socket.emit("UNSUBSCRIBE", gameCode) };
-    },[gameCode]);
+    }, [gameCode]);
+
+    useEffect(() => {
+        document.title = `${currentPlayer}'s turn`;
+    }, [currentPlayer]);
+
+    useEffect(() => {
+        if (source !== null && dest !== null) { // both have been so selected so must be a valid move
+            socket.emit("MOVE", gameCode, source, dest);
+        }
+    }, [source, dest, gameCode]);
 
     useEffect(() => {
 
@@ -94,9 +73,10 @@ const Game = ({gameCode, name}) => {
             setData(JSON.parse(data));
         });
 
-        socket.on("NEWDATA", data => {
+        socket.on("ROLLED", data => {
             console.log("new data callback");
             setData(JSON.parse(data));
+            setRolled(true);
         });
 
         socket.on("MOVED", data => {
@@ -105,17 +85,10 @@ const Game = ({gameCode, name}) => {
             setSource(null);
             setDest(null);
         });
-    },[name]);
+    }, [name]);
 
     function rollDice() {
-        // fetch(`api/game/${gameCode}/roll`, {method:"POST"})
-        // .then(res => res.json())
-        // .then(data => {
-        //     console.log(data);
-        //     setRolled(true);
-        // });
         socket.emit("ROLL", gameCode);
-        setRolled(true);
     }
 
     function spikeClicked(index) {
@@ -131,7 +104,7 @@ const Game = ({gameCode, name}) => {
                 }
             }
         }
-
+    
         const validDest = (source, index) => {
             if (thisPlayer === 0) { // white
                 if (board[index] <= 0 || board[index] === 1) {
@@ -157,7 +130,7 @@ const Game = ({gameCode, name}) => {
                 }
             }
         }
-
+    
         console.log(`Cliked spike ${index}`);
         if (currentPlayer === players[thisPlayer]) {
             if (rolled) {

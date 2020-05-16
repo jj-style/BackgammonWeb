@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import request, jsonify, abort, make_response
 from flask_cors import CORS, cross_origin
-from flask_socketio import SocketIO, send, emit
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
 import random, json
 from backgammon.game import Game
 
@@ -93,17 +93,23 @@ def handle_message(message):
 @socketio.on('SUBSCRIBE')
 def subscribe_to_game(code):
     print("subscribing to game")
-    emit("SUBSCRIBED", json.dumps(GAMES[code].__dict__))
+    join_room(code)
+    emit("SUBSCRIBED",json.dumps(GAMES[code].__dict__), room=code)
+
+@socketio.on('UNSUBSCRIBE')
+def unsubscribe_to_game(code):
+    print("unsubscribing to game")
+    leave_room(code)
 
 @socketio.on('ROLL')
-def roll_socket(gameCode):
-    GAMES[gameCode].roll()
-    emit("NEWDATA", json.dumps(GAMES[gameCode].__dict__))
+def roll_socket(game_code):
+    GAMES[game_code].roll()
+    emit("ROLLED",json.dumps(GAMES[game_code].__dict__), room=game_code)
 
 @socketio.on('MOVE')
 def move_piece_socket(game_code, from_index, to_index):
     GAMES[game_code].move(int(from_index), int(to_index))
-    emit("MOVED", json.dumps(GAMES[game_code].__dict__))
+    emit("MOVED",json.dumps(GAMES[game_code].__dict__), room=game_code)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False)
+    socketio.run(app, debug=True)

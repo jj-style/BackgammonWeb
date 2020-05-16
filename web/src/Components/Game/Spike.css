@@ -1,12 +1,77 @@
-.spike {
-	position: relative;	
+.triangle-down {
+	width: 0;
+	height: 0;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
 }
 
-.spike:hover {
-    width:50%;
-    position:absolute;
-    background-color: black;
-    opacity:0.5;
+.triangle-up {
+	width: 0;
+	height: 0;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
+}
+
+.triangle-up.select {
+	border-bottom: 250px solid yellow;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
+}
+
+.triangle-down.select {
+	border-top: 250px solid yellow;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
+}
+
+.triangle-up-dark {
+	border-bottom: 250px solid brown;
+}
+
+.triangle-up-light {
+	border-bottom: 250px solid lightsalmon;
+}
+
+.triangle-down-dark {
+	border-top: 250px solid brown;
+}
+
+.triangle-down-light {
+	border-top: 250px solid lightsalmon;
+}
+
+.triangle-up-dark:hover {
+	border-bottom: 250px solid rgba(165, 42, 42, 0.842);
+}
+
+.triangle-up-light:hover {
+	border-bottom: 250px solid rgba(255, 160, 122, 0.699);
+}
+
+.triangle-down-dark:hover {
+	border-top: 250px solid rgba(165, 42, 42, 0.842);
+}
+
+.triangle-down-light:hover {
+	border-top: 250px solid rgba(255, 160, 122, 0.699);
+}
+
+.circle {
+	height: 30px;
+	width: 30px;
+	border-radius: 50%;
+}
+
+.circle-black {
+	background-color: black;
+}
+
+.circle-white {
+	background-color: white;
+}
+
+.spike {
+	position: relative;	
 }
 
 .piece {

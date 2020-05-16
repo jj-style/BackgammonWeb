@@ -200,12 +200,12 @@ const Game = ({gameCode, name}) => {
                 <div className="board">
                     <div className="row" style={{marginBottom:"70px"}}>
                         {board.slice(0,12).map((value, index) => {
-                            return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} />
+                            return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} />
                         })}
                     </div>
                     <div className="row">
                         {board.slice(12,24).reverse().map((value, index) => {
-                            return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} />
+                            return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} />
                         })}
                     </div>
                 </div>

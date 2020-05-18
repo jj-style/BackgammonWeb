@@ -24,6 +24,7 @@ const Game = ({gameCode, name}) => {
     const [thisPlayer, setThisPlayer] = useState(null);
     const [dice, setDice] = useState([]);
     const [takenPieces, setTakenPieces] = useState([]);
+    const [canMove, setCanMove] = useState(true);
 
     // Game flow
     const [rolled, setRolled] = useState(false);
@@ -79,6 +80,7 @@ const Game = ({gameCode, name}) => {
             console.log("new data callback");
             setData(JSON.parse(data));
             setRolled(true);
+            setCanMove(playerCanMove());
         });
 
         socket.on("MOVED", data => {
@@ -86,9 +88,15 @@ const Game = ({gameCode, name}) => {
             setData(JSON.parse(data));
             setSource(null);
             setDest(null);
+            setCanMove(playerCanMove());
         });
-    }, [name]);
+    }, [name, playerCanMove]);
 
+    useEffect(() => {
+        if (!canMove) {
+            console.log("You cannot move. Skipping turn.");
+        }
+    }, [canMove]);
 
     function rollDice() {
         socket.emit("ROLL", gameCode);
@@ -138,37 +146,39 @@ const Game = ({gameCode, name}) => {
         }
     }
 
-    useEffect(() => {
-        if (players) {
-        if (currentPlayer === players[thisPlayer] && source !== null) {
-            if (thisPlayer === 0) { // white
-                if (takenPieces.includes(-1)) {
-                    return board.slice(18,24).map((value, index) => validDest(24,23-index)).reduce((res,val) => {return res | val});
-                } else {
-                    return (
-                        dice.map((diceVal, diceIndex) => {
-                           return board.map((boardVal, boardIndex) => {
-                                return validSource(boardIndex) && validDest(boardIndex, boardIndex-diceVal);
-                           });
-                        }).reduce((res,val) => {return res | val })
-                    );
-                }
+    function playerCanMove() {
+        const anyTrue = (x,y) => { return x|y; }
+
+        if (thisPlayer === 0) { // white
+            if (takenPieces.includes(-1)) {
+                return board.slice(18,24)
+                        .map((value, index) => { return validDest(24,23-index) })
+                        .reduce(anyTrue) === 1;
             } else {
-                if (takenPieces.includes(1)) {
-                    return board.slice(0,6).map((value, index) => validDest(-1,index)).reduce((res,val) => {return res | val});
-                } else {
-                    return (
-                        dice.map((diceVal, diceIndex) => {
-                           return board.map((boardVal, boardIndex) => {
-                                return validSource(boardIndex) && validDest(boardIndex, boardIndex+diceVal);
-                           });
-                        }).reduce((res,val) => {return res | val })
-                    );
-                }
+                return (
+                    dice.map((diceVal, diceIndex) => {
+                        return board.map((boardVal, boardIndex) => {
+                            return validSource(boardIndex) && validDest(boardIndex, boardIndex-diceVal);
+                        }).reduce(anyTrue);
+                    }).reduce(anyTrue)
+                ) === 1;
+            }
+        } else {
+            if (takenPieces.includes(1)) {
+                return board.slice(0,6)
+                .map((value, index) => { return validDest(-1,index) })
+                .reduce(anyTrue) === 1;
+            } else {
+                return (
+                    dice.map((diceVal, diceIndex) => {
+                        return board.map((boardVal, boardIndex) => {
+                            return validSource(boardIndex) && validDest(boardIndex, boardIndex+diceVal);
+                        }).reduce(anyTrue);
+                    }).reduce(anyTrue)
+                ) === 1;
             }
         }
-        }
-    }, [currentPlayer, thisPlayer, source, board, takenPieces, dice, players, validDest, validSource]);
+    }
 
     function spikeClicked(index) {
     

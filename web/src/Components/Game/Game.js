@@ -23,6 +23,7 @@ const Game = ({gameCode, name}) => {
     const [currentPlayer, setCurrentPlayer] = useState(null);
     const [thisPlayer, setThisPlayer] = useState(null);
     const [dice, setDice] = useState([]);
+    const [takenPieces, setTakenPieces] = useState([]);
 
     // Game flow
     const [rolled, setRolled] = useState(false);
@@ -66,6 +67,7 @@ const Game = ({gameCode, name}) => {
             setThisPlayer(data.players.indexOf(name));
             setDice(data.dice);
             setRolled(data.dice.length!==0);
+            setTakenPieces(data.taken_pieces);
         } 
 
         socket.on("SUBSCRIBED", data => {
@@ -93,14 +95,18 @@ const Game = ({gameCode, name}) => {
 
     function spikeClicked(index) {
 
-        const validSource = (index) => {
-            if (board[index] < 0 && thisPlayer === 0) { // white
-                return true;
-            } else {
-                if (board[index] > 0 && thisPlayer === 1) { // black
-                    return true;
+        const validSource = (index) => { // pass in -1 if click the taken pieces and it's blacks turn or 24 if taken pieces and whites turn
+            if (thisPlayer === 0) { // white
+                if (takenPieces.includes(-1)) { // there is a white piece taken
+                    return index === 24;
                 } else {
-                    return false;
+                    return board[index] < 0;
+                }
+            } else { // black
+                if (takenPieces.includes(1)) {
+                    return index === -1;
+                } else {
+                    return board[index] > 0; 
                 }
             }
         }
@@ -109,10 +115,10 @@ const Game = ({gameCode, name}) => {
             if (thisPlayer === 0) { // white
                 if (board[index] <= 0 || board[index] === 1) {
                     // if dest is dice roll away from source
-                    if (dice.includes(Math.abs(source-index)) && index < source ) {
-                        return true;
+                    if (source === 24) { // validation for removing taken piece
+                        return dice.includes(Math.abs(source-index)) && index >=18 && index <=23;
                     } else {
-                        return false
+                        return dice.includes(Math.abs(source-index)) && index < source;
                     }
                 } else {
                     return false;
@@ -120,10 +126,10 @@ const Game = ({gameCode, name}) => {
             } else { // black
                 if (board[index] >= 0 || board[index] === -1) {
                     // if dest is dice roll away from source
-                    if (dice.includes(Math.abs(source-index)) && index > source ) {
-                        return true;
+                    if (source === -1) { // validation for removing taken piece
+                        return dice.includes(Math.abs(source-index)) && index >=0 && index <=5;
                     } else {
-                        return false;
+                        return dice.includes(Math.abs(source-index)) && index > source;
                     }
                 } else {
                     return false;

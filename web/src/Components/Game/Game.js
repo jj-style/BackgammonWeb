@@ -89,53 +89,88 @@ const Game = ({gameCode, name}) => {
         });
     }, [name]);
 
+
     function rollDice() {
         socket.emit("ROLL", gameCode);
     }
 
-    function spikeClicked(index) {
+    const validSource = (index) => { // pass in -1 if click the taken pieces and it's blacks turn or 24 if taken pieces and whites turn
+        if (thisPlayer === 0) { // white
+            if (takenPieces.includes(-1)) { // there is a white piece taken
+                return index === 24;
+            } else {
+                return board[index] < 0;
+            }
+        } else { // black
+            if (takenPieces.includes(1)) {
+                return index === -1;
+            } else {
+                return board[index] > 0; 
+            }
+        }
+    }
 
-        const validSource = (index) => { // pass in -1 if click the taken pieces and it's blacks turn or 24 if taken pieces and whites turn
-            if (thisPlayer === 0) { // white
-                if (takenPieces.includes(-1)) { // there is a white piece taken
-                    return index === 24;
+    const validDest = (source, index) => {
+        if (index < 0 || index > 23)
+            return false;
+        if (thisPlayer === 0) { // white
+            if (board[index] <= 0 || board[index] === 1) {
+                // if dest is dice roll away from source
+                if (source === 24) { // validation for removing taken piece
+                    return dice.includes(Math.abs(source-index)) && index >=18 && index <=23;
                 } else {
-                    return board[index] < 0;
+                    return dice.includes(Math.abs(source-index)) && index < source;
                 }
-            } else { // black
+            } else {
+                return false;
+            }
+        } else { // black
+            if (board[index] >= 0 || board[index] === -1) {
+                // if dest is dice roll away from source
+                if (source === -1) { // validation for removing taken piece
+                    return dice.includes(Math.abs(source-index)) && index >=0 && index <=5;
+                } else {
+                    return dice.includes(Math.abs(source-index)) && index > source;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (players) {
+        if (currentPlayer === players[thisPlayer] && source !== null) {
+            if (thisPlayer === 0) { // white
+                if (takenPieces.includes(-1)) {
+                    return board.slice(18,24).map((value, index) => validDest(24,23-index)).reduce((res,val) => {return res | val});
+                } else {
+                    return (
+                        dice.map((diceVal, diceIndex) => {
+                           return board.map((boardVal, boardIndex) => {
+                                return validSource(boardIndex) && validDest(boardIndex, boardIndex-diceVal);
+                           });
+                        }).reduce((res,val) => {return res | val })
+                    );
+                }
+            } else {
                 if (takenPieces.includes(1)) {
-                    return index === -1;
+                    return board.slice(0,6).map((value, index) => validDest(-1,index)).reduce((res,val) => {return res | val});
                 } else {
-                    return board[index] > 0; 
+                    return (
+                        dice.map((diceVal, diceIndex) => {
+                           return board.map((boardVal, boardIndex) => {
+                                return validSource(boardIndex) && validDest(boardIndex, boardIndex+diceVal);
+                           });
+                        }).reduce((res,val) => {return res | val })
+                    );
                 }
             }
         }
-    
-        const validDest = (source, index) => {
-            if (thisPlayer === 0) { // white
-                if (board[index] <= 0 || board[index] === 1) {
-                    // if dest is dice roll away from source
-                    if (source === 24) { // validation for removing taken piece
-                        return dice.includes(Math.abs(source-index)) && index >=18 && index <=23;
-                    } else {
-                        return dice.includes(Math.abs(source-index)) && index < source;
-                    }
-                } else {
-                    return false;
-                }
-            } else { // black
-                if (board[index] >= 0 || board[index] === -1) {
-                    // if dest is dice roll away from source
-                    if (source === -1) { // validation for removing taken piece
-                        return dice.includes(Math.abs(source-index)) && index >=0 && index <=5;
-                    } else {
-                        return dice.includes(Math.abs(source-index)) && index > source;
-                    }
-                } else {
-                    return false;
-                }
-            }
         }
+    }, [currentPlayer, thisPlayer, source, board, takenPieces, dice, players, validDest, validSource]);
+
+    function spikeClicked(index) {
     
         console.log(`Cliked spike ${index}`);
         if (currentPlayer === players[thisPlayer]) {

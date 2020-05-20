@@ -81,6 +81,7 @@ const Game = ({gameCode, name}) => {
             setData(JSON.parse(data));
             setRolled(true);
             setCanMove(playerCanMove());
+            console.log(canMove);
         });
 
         socket.on("MOVED", data => {
@@ -90,7 +91,7 @@ const Game = ({gameCode, name}) => {
             setDest(null);
             setCanMove(playerCanMove());
         });
-    }, [name, playerCanMove]);
+    }, [name]);
 
     useEffect(() => {
         if (!canMove) {

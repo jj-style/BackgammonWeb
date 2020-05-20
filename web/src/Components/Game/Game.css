@@ -9,6 +9,23 @@
 	background-position: center center; */
 }
 
+.takenPiece {
+	display: inline-block;
+}
+
+.takenPieces {
+	background-color: #966F33;
+}
+
+.takenPieces.select {
+	background-color: yellow;
+}
+
+.takenPieces:hover {
+	background-color: rgb(131, 99, 50);
+	cursor: pointer;
+}
+
 .roll-btn {
 	display: block;
 	margin: 0 auto;

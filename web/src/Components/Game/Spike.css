@@ -1,3 +1,7 @@
+.spike:hover {
+	cursor: pointer;
+}
+
 .triangle-down {
 	width: 0;
 	height: 0;

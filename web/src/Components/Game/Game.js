@@ -61,6 +61,7 @@ const Game = ({gameCode, name}) => {
     useEffect(() => {
 
         function setData(data) {
+            console.log(data);
             setBoard(data.board);
             setPlayers(data.players)
             setStart(data.players.length === 2);
@@ -81,7 +82,6 @@ const Game = ({gameCode, name}) => {
             setData(JSON.parse(data));
             setRolled(true);
             setCanMove(playerCanMove());
-            console.log(canMove);
         });
 
         socket.on("MOVED", data => {
@@ -258,6 +258,14 @@ const Game = ({gameCode, name}) => {
                     <div className="row">
                         {board.slice(12,24).reverse().map((value, index) => {
                             return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} />
+                        })}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className={`takenPieces mx-auto col-4 my-1 py-1 ${source === -1 || source === 24 ? "select" : "null" }`}>
+                        {
+                        takenPieces.map((value, index) => {
+                            return <div key={index} className={`takenPiece circle circle-${value<0 ? "white" : "black"}`} onClick={() => spikeClicked(thisPlayer === 0 ? 24 : -1)} />
                         })}
                     </div>
                 </div>

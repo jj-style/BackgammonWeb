@@ -5,7 +5,7 @@ class Game():
 
     def __init__(self):
         self.board = self.set_initial_board([0 for i in range(24)])
-        self.taken_pieces = []
+        self.taken_pieces = [1]
         self.players = []
         self.current_player = None
         self.dice = []
@@ -45,15 +45,37 @@ class Game():
             self.dice = [num1, num2]
 
     def move(self, from_index, to_index):
-        turn = self.board[from_index] < 0 # <0 = white, >0 = black
 
-        if turn: # white
-            self.board[from_index] += 1
-            self.board[to_index] -= 1
+        if from_index == -1 or from_index == 24: # moving off taken pieces move
+            if from_index == -1:
+                num = 1
+            else:
+                num = -1
+            self.taken_pieces.remove(num)
 
-        else: # black
-            self.board[from_index] -= 1
-            self.board[to_index] += 1
+            if abs(self.board[to_index]) == 1 and num*self.board[to_index] == -1:
+                num += num
+                self.taken_pieces.append(self.board[to_index])
+            self.board[to_index] += num
+        
+        else: # normal move
+            turn = self.board[from_index] < 0 # <0 = white, >0 = black
+
+            if turn: # white
+                self.board[from_index] += 1
+                if self.board[to_index] <= 0:
+                    self.board[to_index] -= 1
+                else:
+                    self.board[to_index] = -1
+                    self.taken_pieces.append(1)
+
+            else: # black
+                self.board[from_index] -= 1
+                if self.board[to_index] >= 0:
+                    self.board[to_index] += 1
+                else:
+                    self.board[to_index] = 1
+                    self.taken_pieces.append(-1)
 
         self.dice.remove(abs(from_index-to_index))
         if len(self.dice) == 0:

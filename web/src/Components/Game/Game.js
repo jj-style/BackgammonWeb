@@ -153,28 +153,28 @@ const Game = ({gameCode, name}) => {
             if (takenPieces.includes(-1)) {
                 return board.slice(18,24)
                         .map((value, index) => { return validDest(24,23-index) })
-                        .reduce(anyTrue) === 1;
+                        .reduce(anyTrue, false) === 1;
             } else {
                 return (
                     dice.map((diceVal, diceIndex) => {
                         return board.map((boardVal, boardIndex) => {
                             return validSource(boardIndex) && validDest(boardIndex, boardIndex-diceVal);
-                        }).reduce(anyTrue);
-                    }).reduce(anyTrue)
+                        }).reduce(anyTrue, false);
+                    }).reduce(anyTrue, false)
                 ) === 1;
             }
         } else {
             if (takenPieces.includes(1)) {
                 return board.slice(0,6)
                 .map((value, index) => { return validDest(-1,index) })
-                .reduce(anyTrue) === 1;
+                .reduce(anyTrue, false) === 1;
             } else {
                 return (
                     dice.map((diceVal, diceIndex) => {
                         return board.map((boardVal, boardIndex) => {
                             return validSource(boardIndex) && validDest(boardIndex, boardIndex+diceVal);
-                        }).reduce(anyTrue);
-                    }).reduce(anyTrue)
+                        }).reduce(anyTrue, false);
+                    }).reduce(anyTrue, false)
                 ) === 1;
             }
         }

@@ -61,7 +61,7 @@ const Game = ({gameCode, name}) => {
     useEffect(() => {
 
         function setData(data) {
-            console.log(data);
+            // console.log(data);
             setBoard(data.board);
             setPlayers(data.players)
             setStart(data.players.length === 2);
@@ -70,7 +70,12 @@ const Game = ({gameCode, name}) => {
             setDice(data.dice);
             setRolled(data.dice.length!==0);
             setTakenPieces(data.taken_pieces);
-        } 
+        }
+
+        function endTurn() {
+            setRolled(false);
+            setDice([]);
+        }
 
         socket.on("SUBSCRIBED", data => {
             console.log("subscribed callback");
@@ -81,15 +86,18 @@ const Game = ({gameCode, name}) => {
             console.log("new data callback");
             setData(JSON.parse(data));
             setRolled(true);
-
+            
             fetch(`api/game/${gameCode}/possibleMoves`)
             .then(res => res.json())
             .then(data => {
+                console.log("all moves",data.allMoves);
                 setPossibleMoves(data.allMoves);
                 if (Object.keys(data.allMoves).length === 0) {
                     console.log("No moves possible, ending turn");
+                    endTurn();
                     socket.emit("ENDTURN", gameCode);
                 }
+                
             });
         });
 
@@ -102,14 +110,23 @@ const Game = ({gameCode, name}) => {
             fetch(`api/game/${gameCode}/possibleMoves`)
             .then(res => res.json())
             .then(data => {
+                console.log("all moves",data.allMoves);
                 setPossibleMoves(data.allMoves);
                 if (Object.keys(data.allMoves).length === 0) {
                     console.log("No moves possible, ending turn");
+                    endTurn();
                     socket.emit("ENDTURN", gameCode);
                 }
+                
             });
 
         });
+
+        socket.on("ENDEDTURN", data => {
+            console.log("Ended turn callback");
+            setData(JSON.parse(data));
+        });
+
     }, [name, gameCode]);
 
     function rollDice() {

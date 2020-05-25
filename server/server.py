@@ -121,6 +121,7 @@ def get_possible_moves(gameCode):
 @socketio.on('ENDTURN')
 def end_turn(game_code):
     GAMES[game_code].switch_turn()
+    emit("ENDEDTURN",json.dumps(GAMES[game_code].__dict__), room=game_code)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

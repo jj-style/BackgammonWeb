@@ -11,7 +11,8 @@ class Game():
         self.dice = []
 
     def start_game(self):
-        self.current_player = random.randint(0,1)
+        # self.current_player = random.randint(0,1)
+        self.current_player = 1
 
     def set_initial_board(self, board):
         new_board = deepcopy(board)
@@ -43,6 +44,7 @@ class Game():
             self.dice = [num1 for i in range(4)]
         else:
             self.dice = [num1, num2]
+        self.dice = [6,6,6,6]
 
     def switch_turn(self):
         self.current_player ^= 1
@@ -57,15 +59,17 @@ class Game():
     def compute_all_moves(self):
         if self.current_player == 0:
             if -1 in self.taken_pieces:
-                return { 24:self.dests(24) }
+                all_moves = { 24:self.dests(24) }
             else:
-                return { source:self.dests(source) for source in range(len(self.board)) if self.board[source] < 0 }
+                all_moves = { source:self.dests(source) for source in range(len(self.board)) if self.board[source] < 0 }
         else:
             if 1 in self.taken_pieces:
-                return { -1:self.dests(-1) }
+                all_moves = { -1:self.dests(-1) }
             else:
-                return { source:self.dests(source) for source in range(len(self.board)) if self.board[source] > 0 }
-
+                all_moves = { source:self.dests(source) for source in range(len(self.board)) if self.board[source] > 0 }
+        
+        return { key:value for key,value in all_moves.items() if value }
+        
     def move(self, from_index, to_index):
 
         if from_index == -1 or from_index == 24: # moving off taken pieces move

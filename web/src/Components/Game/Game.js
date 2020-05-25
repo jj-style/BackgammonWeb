@@ -24,7 +24,7 @@ const Game = ({gameCode, name}) => {
     const [thisPlayer, setThisPlayer] = useState(null);
     const [dice, setDice] = useState([]);
     const [takenPieces, setTakenPieces] = useState([]);
-    const [canMove, setCanMove] = useState(true);
+    const [possibleMoves, setPossibleMoves] = useState(null);
 
     // Game flow
     const [rolled, setRolled] = useState(false);
@@ -45,8 +45,8 @@ const Game = ({gameCode, name}) => {
             socket.emit("SUBSCRIBE", code);
         }
         subscribeToGame(gameCode);
-        return () => { socket.emit("UNSUBSCRIBE", gameCode) };
-    }, [gameCode]);
+        return () => { socket.emit("UNSUBSCRIBE", gameCode, name) };
+    }, [gameCode,name]);
 
     useEffect(() => {
         document.title = `${currentPlayer}'s turn`;
@@ -81,7 +81,16 @@ const Game = ({gameCode, name}) => {
             console.log("new data callback");
             setData(JSON.parse(data));
             setRolled(true);
-            setCanMove(playerCanMove());
+
+            fetch(`api/game/${gameCode}/possibleMoves`)
+            .then(res => res.json())
+            .then(data => {
+                setPossibleMoves(data.allMoves);
+                if (Object.keys(data.allMoves).length === 0) {
+                    console.log("No moves possible, ending turn");
+                    socket.emit("ENDTURN", gameCode);
+                }
+            });
         });
 
         socket.on("MOVED", data => {
@@ -89,112 +98,39 @@ const Game = ({gameCode, name}) => {
             setData(JSON.parse(data));
             setSource(null);
             setDest(null);
-            setCanMove(playerCanMove());
-        });
-    }, [name]);
 
-    useEffect(() => {
-        if (!canMove) {
-            console.log("You cannot move. Skipping turn.");
-        }
-    }, [canMove]);
+            fetch(`api/game/${gameCode}/possibleMoves`)
+            .then(res => res.json())
+            .then(data => {
+                setPossibleMoves(data.allMoves);
+                if (Object.keys(data.allMoves).length === 0) {
+                    console.log("No moves possible, ending turn");
+                    socket.emit("ENDTURN", gameCode);
+                }
+            });
+
+        });
+    }, [name, gameCode]);
 
     function rollDice() {
         socket.emit("ROLL", gameCode);
     }
 
-    const validSource = (index) => { // pass in -1 if click the taken pieces and it's blacks turn or 24 if taken pieces and whites turn
-        if (thisPlayer === 0) { // white
-            if (takenPieces.includes(-1)) { // there is a white piece taken
-                return index === 24;
-            } else {
-                return board[index] < 0;
-            }
-        } else { // black
-            if (takenPieces.includes(1)) {
-                return index === -1;
-            } else {
-                return board[index] > 0; 
-            }
-        }
-    }
-
-    const validDest = (source, index) => {
-        if (index < 0 || index > 23)
-            return false;
-        if (thisPlayer === 0) { // white
-            if (board[index] <= 0 || board[index] === 1) {
-                // if dest is dice roll away from source
-                if (source === 24) { // validation for removing taken piece
-                    return dice.includes(Math.abs(source-index)) && index >=18 && index <=23;
-                } else {
-                    return dice.includes(Math.abs(source-index)) && index < source;
-                }
-            } else {
-                return false;
-            }
-        } else { // black
-            if (board[index] >= 0 || board[index] === -1) {
-                // if dest is dice roll away from source
-                if (source === -1) { // validation for removing taken piece
-                    return dice.includes(Math.abs(source-index)) && index >=0 && index <=5;
-                } else {
-                    return dice.includes(Math.abs(source-index)) && index > source;
-                }
-            } else {
-                return false;
-            }
-        }
-    }
-
-    function playerCanMove() {
-        const anyTrue = (x,y) => { return x|y; }
-
-        if (thisPlayer === 0) { // white
-            if (takenPieces.includes(-1)) {
-                return board.slice(18,24)
-                        .map((value, index) => { return validDest(24,23-index) })
-                        .reduce(anyTrue, false) === 1;
-            } else {
-                return (
-                    dice.map((diceVal, diceIndex) => {
-                        return board.map((boardVal, boardIndex) => {
-                            return validSource(boardIndex) && validDest(boardIndex, boardIndex-diceVal);
-                        }).reduce(anyTrue, false);
-                    }).reduce(anyTrue, false)
-                ) === 1;
-            }
-        } else {
-            if (takenPieces.includes(1)) {
-                return board.slice(0,6)
-                .map((value, index) => { return validDest(-1,index) })
-                .reduce(anyTrue, false) === 1;
-            } else {
-                return (
-                    dice.map((diceVal, diceIndex) => {
-                        return board.map((boardVal, boardIndex) => {
-                            return validSource(boardIndex) && validDest(boardIndex, boardIndex+diceVal);
-                        }).reduce(anyTrue, false);
-                    }).reduce(anyTrue, false)
-                ) === 1;
-            }
-        }
-    }
-
     function spikeClicked(index) {
     
         console.log(`Cliked spike ${index}`);
+        console.log("Possible Moves:", possibleMoves);
         if (currentPlayer === players[thisPlayer]) {
             if (rolled) {
                 if (source === null) {
-                    if (validSource(index)) { // validation in this if statement
+                    if (index in possibleMoves) {
                         console.log("valid source");
                         setSource(index);
                     } else {
                         console.log(`Cannot select spike ${index} as a source`);
                     }
                 } else { // dest
-                    if (validDest(source,index)) {
+                    if (possibleMoves[source].includes(index)) {
                         console.log("valid destination");
                         setDest(index);
                     } else {
@@ -252,12 +188,12 @@ const Game = ({gameCode, name}) => {
                 <div className="board">
                     <div className="row" style={{marginBottom:"70px"}}>
                         {board.slice(0,12).map((value, index) => {
-                            return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} />
+                            return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} />
                         })}
                     </div>
                     <div className="row">
                         {board.slice(12,24).reverse().map((value, index) => {
-                            return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} />
+                            return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves}/>
                         })}
                     </div>
                 </div>

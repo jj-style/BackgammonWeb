@@ -91,3 +91,15 @@
 .piece-down { /* piece on downward spike (so on top row) */
 	transform: translate(-50%, -800%);
 }
+
+.triangle-up.pos-dest {
+	border-bottom: 250px solid lightgreen;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
+}
+
+.triangle-down.pos-dest {
+	border-top: 250px solid lightgreen;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
+}

@@ -44,6 +44,28 @@ class Game():
         else:
             self.dice = [num1, num2]
 
+    def switch_turn(self):
+        self.current_player ^= 1
+
+    def dests(self, source):
+        if self.current_player == 0:
+            valid_dests = [ source - d for d in self.dice if source-d in range(len(self.board)) and self.board[source - d] <= 1 ]
+        else:
+            valid_dests = [ source + d for d in self.dice if source+d in range(len(self.board)) and self.board[source + d] >= -1 ]
+        return valid_dests
+
+    def compute_all_moves(self):
+        if self.current_player == 0:
+            if -1 in self.taken_pieces:
+                return { 24:self.dests(24) }
+            else:
+                return { source:self.dests(source) for source in range(len(self.board)) if self.board[source] < 0 }
+        else:
+            if 1 in self.taken_pieces:
+                return { -1:self.dests(-1) }
+            else:
+                return { source:self.dests(source) for source in range(len(self.board)) if self.board[source] > 0 }
+
     def move(self, from_index, to_index):
 
         if from_index == -1 or from_index == 24: # moving off taken pieces move
@@ -78,5 +100,4 @@ class Game():
                     self.taken_pieces.append(-1)
 
         self.dice.remove(abs(from_index-to_index))
-        if len(self.dice) == 0:
-            self.current_player ^= 1
+        self.current_player ^= len(self.dice) == 0

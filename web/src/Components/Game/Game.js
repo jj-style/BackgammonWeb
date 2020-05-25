@@ -55,13 +55,15 @@ const Game = ({gameCode, name}) => {
     useEffect(() => {
         if (source !== null && dest !== null) { // both have been so selected so must be a valid move
             socket.emit("MOVE", gameCode, source, dest);
+            if (dice.length !== 1)
+                getAllPossibleMoves();
         }
     }, [source, dest, gameCode]);
 
     useEffect(() => {
 
         function setData(data) {
-            // console.log(data);
+            console.log(data);
             setBoard(data.board);
             setPlayers(data.players)
             setStart(data.players.length === 2);
@@ -70,11 +72,6 @@ const Game = ({gameCode, name}) => {
             setDice(data.dice);
             setRolled(data.dice.length!==0);
             setTakenPieces(data.taken_pieces);
-        }
-
-        function endTurn() {
-            setRolled(false);
-            setDice([]);
         }
 
         socket.on("SUBSCRIBED", data => {
@@ -86,19 +83,6 @@ const Game = ({gameCode, name}) => {
             console.log("new data callback");
             setData(JSON.parse(data));
             setRolled(true);
-            
-            fetch(`api/game/${gameCode}/possibleMoves`)
-            .then(res => res.json())
-            .then(data => {
-                console.log("all moves",data.allMoves);
-                setPossibleMoves(data.allMoves);
-                if (Object.keys(data.allMoves).length === 0) {
-                    console.log("No moves possible, ending turn");
-                    endTurn();
-                    socket.emit("ENDTURN", gameCode);
-                }
-                
-            });
         });
 
         socket.on("MOVED", data => {
@@ -106,20 +90,6 @@ const Game = ({gameCode, name}) => {
             setData(JSON.parse(data));
             setSource(null);
             setDest(null);
-
-            fetch(`api/game/${gameCode}/possibleMoves`)
-            .then(res => res.json())
-            .then(data => {
-                console.log("all moves",data.allMoves);
-                setPossibleMoves(data.allMoves);
-                if (Object.keys(data.allMoves).length === 0) {
-                    console.log("No moves possible, ending turn");
-                    endTurn();
-                    socket.emit("ENDTURN", gameCode);
-                }
-                
-            });
-
         });
 
         socket.on("ENDEDTURN", data => {
@@ -129,8 +99,23 @@ const Game = ({gameCode, name}) => {
 
     }, [name, gameCode]);
 
+    function getAllPossibleMoves() {
+        fetch(`api/game/${gameCode}/possibleMoves`)
+        .then(res => res.json())
+        .then(data => {
+            console.log("all moves",data.allMoves);
+            setPossibleMoves(data.allMoves);
+            if (Object.keys(data.allMoves).length === 0) {
+                console.log("No moves possible, ending turn");
+                setRolled(false);
+                socket.emit("ENDTURN", gameCode);
+            } 
+        });
+    }
+
     function rollDice() {
         socket.emit("ROLL", gameCode);
+        getAllPossibleMoves();
     }
 
     function spikeClicked(index) {

@@ -5,14 +5,14 @@ class Game():
 
     def __init__(self):
         self.board = self.set_initial_board([0 for i in range(24)])
-        self.taken_pieces = [1]
+        self.taken_pieces = [1,1]
         self.players = []
         self.current_player = None
         self.dice = []
 
     def start_game(self):
-        # self.current_player = random.randint(0,1)
-        self.current_player = 1
+        self.current_player = random.randint(0,1)
+        # self.current_player = 1
 
     def set_initial_board(self, board):
         new_board = deepcopy(board)
@@ -44,9 +44,10 @@ class Game():
             self.dice = [num1 for i in range(4)]
         else:
             self.dice = [num1, num2]
-        self.dice = [6,6,6,6]
+        # self.dice = [1,6]
 
     def switch_turn(self):
+        self.dice = []
         self.current_player ^= 1
 
     def dests(self, source):

@@ -25,6 +25,7 @@ const Game = ({gameCode, name}) => {
     const [dice, setDice] = useState([]);
     const [takenPieces, setTakenPieces] = useState([]);
     const [possibleMoves, setPossibleMoves] = useState(null);
+    const [removedPieces, setRemovedPieces] = useState([])
 
     // Game flow
     const [rolled, setRolled] = useState(false);
@@ -52,13 +53,23 @@ const Game = ({gameCode, name}) => {
         document.title = `${currentPlayer}'s turn`;
     }, [currentPlayer]);
 
+    // useEffect(() => {
+    //     if (source !== null && dest !== null) { // both have been so selected so must be a valid move
+    //         console.log("EMIT MOVE EVENT");
+    //         socket.emit("MOVE", gameCode, source, dest);
+    //         if (dice.length !== 1)
+    //             getAllPossibleMoves();
+    //     }
+    // }, [source, dest, gameCode, dice.length]);
+
     useEffect(() => {
-        if (source !== null && dest !== null) { // both have been so selected so must be a valid move
+        function makeMove() {
             socket.emit("MOVE", gameCode, source, dest);
-            if (dice.length !== 1)
-                getAllPossibleMoves();
+            getAllPossibleMoves();
         }
-    }, [source, dest, gameCode]);
+        if (dest !== null)
+            makeMove();
+    },[dest, gameCode, source])
 
     useEffect(() => {
 
@@ -72,6 +83,7 @@ const Game = ({gameCode, name}) => {
             setDice(data.dice);
             setRolled(data.dice.length!==0);
             setTakenPieces(data.taken_pieces);
+            setRemovedPieces(data.removed_pieces);
         }
 
         socket.on("SUBSCRIBED", data => {
@@ -105,11 +117,13 @@ const Game = ({gameCode, name}) => {
         .then(data => {
             console.log("all moves",data.allMoves);
             setPossibleMoves(data.allMoves);
-            if (Object.keys(data.allMoves).length === 0) {
-                console.log("No moves possible, ending turn");
-                setRolled(false);
-                socket.emit("ENDTURN", gameCode);
-            } 
+            if (currentPlayer === players[thisPlayer]) {
+                if (Object.keys(data.allMoves).length === 0) {
+                    console.log("No moves possible, ending turn");
+                    setRolled(false);
+                    socket.emit("ENDTURN", gameCode);
+                } 
+            }
         });
     }
 
@@ -187,6 +201,16 @@ const Game = ({gameCode, name}) => {
                         }
                     </div>
                 </div>
+                <div className="row">
+                    <div className={`removed-pieces mx-auto col-10 my-1 py-3 ${source !== null && possibleMoves[source].includes("off") ?"rmv-pos-dest":null}`} onClick={() => spikeClicked("off")} >
+                        {
+                        removedPieces.map((value, index) => {
+                            return Array(value).map((n,i) => {
+                                return <div key={i} className={`removed-piece circle circle-${index===0 ? "white" : "black"}`} />
+                            });
+                        })}
+                    </div>
+                </div>
                 <div className="board">
                     <div className="row" style={{marginBottom:"70px"}}>
                         {board.slice(0,12).map((value, index) => {
@@ -200,7 +224,7 @@ const Game = ({gameCode, name}) => {
                     </div>
                 </div>
                 <div className="row">
-                    <div className={`takenPieces mx-auto col-4 my-1 py-1 ${source === -1 || source === 24 ? "select" : "null" }`}>
+                    <div className={`takenPieces mx-auto col-4 my-1 py-3 ${source === -1 || source === 24 ? "select" : "null" }`}>
                         {
                         takenPieces.map((value, index) => {
                             return <div key={index} className={`takenPiece circle circle-${value<0 ? "white" : "black"}`} onClick={() => spikeClicked(thisPlayer === 0 ? 24 : -1)} />

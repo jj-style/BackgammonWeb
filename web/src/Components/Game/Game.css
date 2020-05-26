@@ -3,17 +3,17 @@
 	border: 10px solid #966F33;
 
 	/* bar in middle */
-	/* background-image: linear-gradient(#966F33, #966F33);
-	background-size: 1% 100%;
+	background-image: linear-gradient(#966F33, #966F33);
+	background-size: 2% 100%;
 	background-repeat: no-repeat;
-	background-position: center center; */
+	background-position: 49.3% center;
 }
 
 .takenPiece {
 	display: inline-block;
 }
 
-.takenPieces {
+.takenPieces, .removed-pieces {
 	background-color: #966F33;
 }
 
@@ -26,6 +26,10 @@
 	cursor: pointer;
 }
 
+.removed-pieces:hover {
+	cursor: pointer;
+}
+
 .roll-btn {
 	display: block;
 	margin: 0 auto;
@@ -35,4 +39,8 @@
 	display: inline-block;
 	height: 50px;
 	margin: 0 auto;
+}
+
+.rmv-pos-dest {
+	background-color: lightgreen;
 }

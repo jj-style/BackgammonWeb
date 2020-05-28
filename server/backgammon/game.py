@@ -5,7 +5,7 @@ class Game():
 
     def __init__(self):
         self.board = self.set_takeoff_board([0 for i in range(24)])
-        self.taken_pieces = []
+        self.taken_pieces = [1]
         self.players = []
         self.current_player = None
         self.dice = []

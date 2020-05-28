@@ -4,6 +4,7 @@ import { Spike } from './Spike';
 import io from 'socket.io-client';
 import "../../bootstrap.min.css";
 import "./Game.css";
+import {Alert} from 'react-bootstrap';
 
 
 const socket = io.connect('http://localhost:5000');
@@ -30,7 +31,7 @@ const Game = ({gameCode, name}) => {
     // Game flow
     const [rolled, setRolled] = useState(false);
     const [source, setSource] = useState(null);
-    const [dest, setDest] = useState(null);
+    const [showCannotMove, setShowCannotMove] = useState(false);
 
     const diceFace = [
         require("../../Assets/Dice/1.png"),
@@ -52,24 +53,6 @@ const Game = ({gameCode, name}) => {
     useEffect(() => {
         document.title = `${currentPlayer}'s turn`;
     }, [currentPlayer]);
-
-    // useEffect(() => {
-    //     if (source !== null && dest !== null) { // both have been so selected so must be a valid move
-    //         console.log("EMIT MOVE EVENT");
-    //         socket.emit("MOVE", gameCode, source, dest);
-    //         if (dice.length !== 1)
-    //             getAllPossibleMoves();
-    //     }
-    // }, [source, dest, gameCode, dice.length]);
-
-    useEffect(() => {
-        function makeMove() {
-            socket.emit("MOVE", gameCode, source, dest);
-            getAllPossibleMoves();
-        }
-        if (dest !== null)
-            makeMove();
-    },[dest, gameCode, source])
 
     useEffect(() => {
 
@@ -101,7 +84,6 @@ const Game = ({gameCode, name}) => {
             console.log("piece moved callback");
             setData(JSON.parse(data));
             setSource(null);
-            setDest(null);
         });
 
         socket.on("ENDEDTURN", data => {
@@ -120,8 +102,11 @@ const Game = ({gameCode, name}) => {
             if (currentPlayer === players[thisPlayer]) {
                 if (Object.keys(data.allMoves).length === 0) {
                     console.log("No moves possible, ending turn");
-                    setRolled(false);
-                    socket.emit("ENDTURN", gameCode);
+                    setShowCannotMove(true);
+                    setTimeout(() => {
+                        setRolled(false);
+                        socket.emit("ENDTURN", gameCode);
+                    }, 3000);
                 } 
             }
         });
@@ -148,11 +133,12 @@ const Game = ({gameCode, name}) => {
                 } else { // dest
                     if (possibleMoves[source].includes(index)) {
                         console.log("valid destination");
-                        setDest(index);
+                        socket.emit("MOVE", gameCode, source, index);
+                        if (dice.length !== 1)
+                            getAllPossibleMoves();
                     } else {
                         console.log(`Cannot select spike ${index} as a destination`)
                         setSource(null);
-                        setDest(null);
                     }
                 }
             } else {
@@ -199,6 +185,14 @@ const Game = ({gameCode, name}) => {
                             :
                             null
                         }
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="mx-auto">
+                    <Alert variant="danger" show={showCannotMove} onClose={() => setShowCannotMove(false)} dismissible>
+                        <Alert.Heading>Alert!</Alert.Heading>
+                        <p>No moves possible... skipping turn.</p>
+                    </Alert>
                     </div>
                 </div>
                 <div className="row">

@@ -6,6 +6,7 @@ import random, json
 from backgammon.game import Game
 
 app = Flask(__name__)
+app.config['CORS_HEADERS'] = 'Content-Type'
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -85,10 +86,6 @@ def roll_dice(gameCode):
     if request.method == "POST":
         GAMES[gameCode].roll()
         return jsonify({"response":"OK"})
-
-@socketio.on('message')
-def handle_message(message):
-    print('received message: ' + message)
 
 @socketio.on('SUBSCRIBE')
 def subscribe_to_game(code):

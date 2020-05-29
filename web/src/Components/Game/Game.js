@@ -9,7 +9,7 @@ import "../../bootstrap.min.css";
 import "./Game.css";
 import gearImg from 'bootstrap-icons/icons/gear-fill.svg'
 
-const socket = io.connect('http://localhost:5000');
+const socket = io.connect("/");
 
 const Game = ({gameCode, name}) => {
 

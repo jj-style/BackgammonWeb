@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Spike } from './Spike';
 import { MyAlert as Alert } from './Alert';
+import { GameOverModal } from './GameOverModal';
 import io from 'socket.io-client';
 import "../../bootstrap.min.css";
 import "./Game.css";
@@ -33,6 +34,7 @@ const Game = ({gameCode, name}) => {
     const [showAlert, setShowAlert] = useState(false);
     const [alertMsg, setAlertMsg] = useState("");
     const [myTurn, setMyTurn] = useState(false);
+    const [gameOver, setGameOver] = useState(false);
 
     const diceFace = [
         require("../../Assets/Dice/1.png"),
@@ -69,6 +71,7 @@ const Game = ({gameCode, name}) => {
             setTakenPieces(data.taken_pieces);
             setRemovedPieces(data.removed_pieces);
             setMyTurn(data.current_player === data.players.indexOf(name));
+            setGameOver(data.game_over);
         }
 
         socket.on("SUBSCRIBED", data => {
@@ -142,6 +145,10 @@ const Game = ({gameCode, name}) => {
         console.log("Possible Moves:", possibleMoves);
         if (myTurn) {
             if (rolled) {
+                if (Object.keys(possibleMoves).length === 0) {
+                    setAlertMsg("No possible moves, please end your turn.");
+                    setShowAlert(true);
+                }
                 if (source === null) {
                     if (index in possibleMoves) {
                         console.log("valid source");
@@ -160,9 +167,13 @@ const Game = ({gameCode, name}) => {
                 }
             } else {
                 console.log("Please roll first");
+                setAlertMsg("Please roll first");
+                setShowAlert(true);
             }
         } else {
             console.log("not your turn");
+            setAlertMsg("Not your turn");
+            setShowAlert(true);
         }
     }
 
@@ -177,6 +188,7 @@ const Game = ({gameCode, name}) => {
 
     return (
         <div className="container-fluid">
+            <GameOverModal show={gameOver} handleCloseGameOver={() => {history.push("/")}} winner={currentPlayer} />
             <div className="row">
                 <div className="mx-auto">
                     <h1>Game {gameCode}</h1>
@@ -248,7 +260,7 @@ const Game = ({gameCode, name}) => {
                     <div className={`takenPieces mx-auto col-4 my-1 py-3 ${source === -1 || source === 24 ? "select" : "null" }`}>
                         {
                         takenPieces.map((value, index) => {
-                            return <div key={index} className={`takenPiece circle circle-${value<0 ? "white" : "black"}`} onClick={() => spikeClicked(thisPlayer === 0 ? 24 : -1)} />
+                            return <div key={index} className={`takenPiece circle circle-${value<0 ? "white" : "black"} mx-1`} onClick={() => spikeClicked(thisPlayer === 0 ? 24 : -1)} />
                         })}
                     </div>
                 </div>

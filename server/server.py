@@ -110,7 +110,11 @@ def roll_socket(game_code):
 @socketio.on('MOVE')
 def move_piece_socket(game_code, from_index, to_index):
     GAMES[game_code].move(from_index, to_index)
-    emit("MOVED",json.dumps( {**GAMES[game_code].__dict__, **{"possible_moves":GAMES[game_code].compute_all_moves()}} ), room=game_code)
+    if len(GAMES[game_code].dice) == 0 or GAMES[game_code].game_over:
+        new_possible_moves = {}
+    else:
+        new_possible_moves = GAMES[game_code].compute_all_moves()
+    emit("MOVED",json.dumps( {**GAMES[game_code].__dict__, **{"possible_moves":new_possible_moves}} ), room=game_code)
 
 @app.route("/api/game/<gameCode>/possibleMoves", methods=["GET"])
 @cross_origin()

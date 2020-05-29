@@ -5,15 +5,16 @@ class Game():
 
     def __init__(self):
         self.board = self.set_initial_board([0 for i in range(24)])
-        self.taken_pieces = [1,1]
+        self.taken_pieces = []
         self.players = []
         self.current_player = None
         self.dice = []
         self.removed_pieces = [0,0] #white, black
+        self.game_over = False
 
     def start_game(self):
         self.current_player = random.randint(0,1)
-        self.current_player = 1 # REMOVE
+        # self.current_player = 1 # REMOVE
 
     def set_initial_board(self, board):
         new_board = deepcopy(board)
@@ -25,7 +26,6 @@ class Game():
         new_board[16] = 3
         new_board[18] = 5
         new_board[23] = -2
-        # new_board[15] = 1 # REMOVE
         return new_board
 
     def set_takeoff_board(self, board):
@@ -42,6 +42,12 @@ class Game():
         new_board[20] = 3
         new_board[19] = 2
         new_board[18] = 3
+        return new_board
+
+    def set_win_board(self, board):
+        new_board = deepcopy(board)
+        new_board[0] = -1
+        new_board[23] = 1
         return new_board
 
 
@@ -63,11 +69,25 @@ class Game():
             self.dice = [num1 for i in range(4)]
         else:
             self.dice = [num1, num2]
-        self.dice = [1,6] # REMOVE
+        # self.dice = [1,6] # REMOVE
 
     def switch_turn(self):
         self.dice = []
         self.current_player ^= 1
+
+    def check_game_over(self):
+        self.game_over = self.removed_pieces[self.current_player] == 15
+        # for debugging when only have one piece on the board
+        if self.current_player == 0:
+            for i in self.board:
+                if i < 0:
+                    self.game_over = False
+            self.game_over = True
+        else:
+            for i in self.board:
+                if i > 0:
+                    self.game_over = False
+            self.game_over = True
 
     def dests(self, source):
         if self.current_player == 0:
@@ -205,4 +225,7 @@ class Game():
 
             self.dice.remove(abs(from_index-to_index))
 
-        self.current_player ^= len(self.dice) == 0
+        self.check_game_over()
+
+        if not self.game_over:
+            self.current_player ^= len(self.dice) == 0

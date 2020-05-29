@@ -3,9 +3,11 @@ import { useHistory } from 'react-router-dom';
 import { Spike } from './Spike';
 import { MyAlert as Alert } from './Alert';
 import { GameOverModal } from './GameOverModal';
+import { SettingsModal } from './SettingsModal';
 import io from 'socket.io-client';
 import "../../bootstrap.min.css";
 import "./Game.css";
+import gearImg from 'bootstrap-icons/icons/gear-fill.svg'
 
 const socket = io.connect('http://localhost:5000');
 
@@ -26,7 +28,7 @@ const Game = ({gameCode, name}) => {
     const [dice, setDice] = useState([]);
     const [takenPieces, setTakenPieces] = useState([]);
     const [possibleMoves, setPossibleMoves] = useState(null);
-    const [removedPieces, setRemovedPieces] = useState([]);
+    const [removedPieces, setRemovedPieces] = useState([0,0]);
 
     // Game flow
     const [rolled, setRolled] = useState(false);
@@ -35,6 +37,10 @@ const Game = ({gameCode, name}) => {
     const [alertMsg, setAlertMsg] = useState("");
     const [myTurn, setMyTurn] = useState(false);
     const [gameOver, setGameOver] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+
+    const [pieceCol1, setPieceCol1] = useState("#FFFFFF");
+    const [pieceCol2, setPieceCol2] = useState("#000000");
 
     const diceFace = [
         require("../../Assets/Dice/1.png"),
@@ -186,9 +192,17 @@ const Game = ({gameCode, name}) => {
         }
     }
 
+    function saveSettings(newCol1, newCol2) {
+        setPieceCol1(newCol1);
+        setPieceCol2(newCol2);
+        setShowSettings(false);
+    }
+
     return (
         <div className="container-fluid">
             <GameOverModal show={gameOver} handleCloseGameOver={() => {history.push("/")}} winner={currentPlayer} />
+            <SettingsModal show={showSettings} cancelSettings={() => {setShowSettings(false)}} saveSettings={saveSettings} currentColour1={pieceCol1} currentColour2={pieceCol2} />
+            <img src={gearImg} alt="settings" onClick={() => {setShowSettings(true)}} style={{cursor:"pointer"}} />
             <div className="row">
                 <div className="mx-auto">
                     <h1>Game {gameCode}</h1>
@@ -206,7 +220,7 @@ const Game = ({gameCode, name}) => {
                     <div className="mx-auto">
                         <h4>
                             { thisPlayer === 0 ? <strong>{players[0]}</strong> : players[0]}
-                            <span className="piece circle circle-white mx-1"/> vs <span className="piece circle circle-black mx-1"/>
+                            <span className="piece circle mx-1" style={{backgroundColor:pieceCol1}} /> vs <span className="piece circle circle-black mx-1" style={{backgroundColor:pieceCol2}} />
                             { thisPlayer === 1 ? <strong>{players[1]}</strong> : players[1]}
                         </h4>
                         { (myTurn && !rolled) ?
@@ -237,22 +251,23 @@ const Game = ({gameCode, name}) => {
                 <div className="row">
                     <div className={`removed-pieces mx-auto col-10 my-1 py-3 ${source !== null && possibleMoves[source].includes("off") ?"rmv-pos-dest":null}`} onClick={() => spikeClicked("off")} >
                         {
-                        removedPieces.map((value, index) => {
-                            return Array(value).map((n,i) => {
-                                return <div key={i} className={`removed-piece circle circle-${index===0 ? "white" : "black"}`} />
+                        removedPieces.map((v,i) => {
+                            return [...Array(v).keys()].map((n,j) => {
+                                return <div key={j} className={`removed-piece piece circle mx-1`} style={{backgroundColor:i===0?pieceCol1:pieceCol2}} />
                             });
-                        })}
+                        })
+                        }
                     </div>
                 </div>
                 <div className="board">
                     <div className="row" style={{marginBottom:"70px"}}>
                         {board.slice(0,12).map((value, index) => {
-                            return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} />
+                            return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
                         })}
                     </div>
                     <div className="row">
                         {board.slice(12,24).reverse().map((value, index) => {
-                            return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves}/>
+                            return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
                         })}
                     </div>
                 </div>
@@ -260,7 +275,7 @@ const Game = ({gameCode, name}) => {
                     <div className={`takenPieces mx-auto col-4 my-1 py-3 ${source === -1 || source === 24 ? "select" : "null" }`}>
                         {
                         takenPieces.map((value, index) => {
-                            return <div key={index} className={`takenPiece circle circle-${value<0 ? "white" : "black"} mx-1`} onClick={() => spikeClicked(thisPlayer === 0 ? 24 : -1)} />
+                            return <div key={index} className={`takenPiece piece circle mx-1`} style={{backgroundColor:value<0?pieceCol1:pieceCol2}} onClick={() => spikeClicked(thisPlayer === 0 ? 24 : -1)} />
                         })}
                     </div>
                 </div>

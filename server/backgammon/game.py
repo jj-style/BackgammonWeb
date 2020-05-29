@@ -79,15 +79,17 @@ class Game():
         self.game_over = self.removed_pieces[self.current_player] == 15
         # for debugging when only have one piece on the board
         if self.current_player == 0:
+            won = True
             for i in self.board:
                 if i < 0:
-                    self.game_over = False
-            self.game_over = True
+                    won = won and False
+            self.game_over = won
         else:
+            won = True
             for i in self.board:
                 if i > 0:
-                    self.game_over = False
-            self.game_over = True
+                    won = won and False
+            self.game_over = won
 
     def dests(self, source):
         if self.current_player == 0:

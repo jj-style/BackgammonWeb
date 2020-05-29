@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Spike } from './Spike';
+import { MyAlert as Alert } from './Alert';
 import io from 'socket.io-client';
 import "../../bootstrap.min.css";
 import "./Game.css";
-import {Alert} from 'react-bootstrap';
 
 const socket = io.connect('http://localhost:5000');
 
@@ -30,7 +30,8 @@ const Game = ({gameCode, name}) => {
     // Game flow
     const [rolled, setRolled] = useState(false);
     const [source, setSource] = useState(null);
-    const [showCannotMove, setShowCannotMove] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMsg, setAlertMsg] = useState("");
     const [myTurn, setMyTurn] = useState(false);
 
     const diceFace = [
@@ -98,6 +99,8 @@ const Game = ({gameCode, name}) => {
 
     // useEffect(() => {
     //     console.log("my turn", myTurn);
+    //     console.log("pos moves", possibleMoves);
+    //     console.log("rolled", rolled);
     //     if (myTurn && possibleMoves !== null && rolled) {
     //         if (Object.keys(possibleMoves).length === 0) {
     //             console.log("No possible moves, ending turn");
@@ -105,7 +108,7 @@ const Game = ({gameCode, name}) => {
     //             setTimeout(() => {
     //                 setRolled(false);
     //                 socket.emit("ENDTURN", gameCode);
-    //             }, 2000);
+    //             }, 100); //2000
     //         }
     //     }
     // }, [possibleMoves,myTurn,gameCode,rolled])
@@ -163,6 +166,15 @@ const Game = ({gameCode, name}) => {
         }
     }
 
+    function endMyTurn() {
+        if (Object.keys(possibleMoves).length === 0) {
+            socket.emit("ENDTURN", gameCode);
+        } else {
+            setAlertMsg("Cannot end turn as still possible to move.");
+            setShowAlert(true);
+        }
+    }
+
     return (
         <div className="container-fluid">
             <div className="row">
@@ -199,14 +211,15 @@ const Game = ({gameCode, name}) => {
                             :
                             null
                         }
+                        {myTurn && rolled ? 
+                            <button type="button" class="btn btn-outline-warning ml-2" onClick={() => {endMyTurn();}}>End Turn</button>
+                        : null
+                        }
                     </div>
                 </div>
                 <div className="row">
                     <div className="mx-auto">
-                        <Alert variant="danger" show={showCannotMove} onClose={() => setShowCannotMove(false)} dismissible>
-                            <Alert.Heading>Alert!</Alert.Heading>
-                            <p>No moves possible... skipping turn.</p>
-                        </Alert>
+                        <Alert showAlert={showAlert} setShowAlert={setShowAlert} msg={alertMsg}/>
                     </div>
                 </div>
                 <div className="row">

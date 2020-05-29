@@ -105,12 +105,12 @@ def unsubscribe_to_game(code,name):
 @socketio.on('ROLL')
 def roll_socket(game_code):
     GAMES[game_code].roll()
-    emit("ROLLED",json.dumps(GAMES[game_code].__dict__), room=game_code)
+    emit("ROLLED",json.dumps( {**GAMES[game_code].__dict__, **{"possible_moves":GAMES[game_code].compute_all_moves()}} ), room=game_code)
 
 @socketio.on('MOVE')
 def move_piece_socket(game_code, from_index, to_index):
     GAMES[game_code].move(from_index, to_index)
-    emit("MOVED",json.dumps(GAMES[game_code].__dict__), room=game_code)
+    emit("MOVED",json.dumps( {**GAMES[game_code].__dict__, **{"possible_moves":GAMES[game_code].compute_all_moves()}} ), room=game_code)
 
 @app.route("/api/game/<gameCode>/possibleMoves", methods=["GET"])
 @cross_origin()

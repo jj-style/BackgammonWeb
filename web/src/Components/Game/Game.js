@@ -5,8 +5,6 @@ import io from 'socket.io-client';
 import "../../bootstrap.min.css";
 import "./Game.css";
 import {Alert} from 'react-bootstrap';
-import refreshArrow from 'bootstrap-icons/icons/arrow-counterclockwise.svg'
-
 
 const socket = io.connect('http://localhost:5000');
 
@@ -81,12 +79,14 @@ const Game = ({gameCode, name}) => {
             console.log("new data callback");
             setData(JSON.parse(data));
             setRolled(true);
+            setPossibleMoves(JSON.parse(data).possible_moves);
         });
 
         socket.on("MOVED", data => {
             console.log("piece moved callback");
             setData(JSON.parse(data));
             setSource(null);
+            setPossibleMoves(JSON.parse(data).possible_moves);
         });
 
         socket.on("ENDEDTURN", data => {
@@ -96,31 +96,42 @@ const Game = ({gameCode, name}) => {
 
     }, [name, gameCode]);
 
-    function getAllPossibleMoves() {
-        if (myTurn) {
-            fetch(`api/game/${gameCode}/possibleMoves`)
-            .then(res => res.json())
-            .then(data => {
-                console.log("all moves",data.allMoves);
-                setPossibleMoves(data.allMoves);
-                if (myTurn) {
-                    if (Object.keys(data.allMoves).length === 0) {
-                        console.log("No moves possible, ending turn");
-                        setShowCannotMove(true);
-                        setTimeout(() => {
-                            setRolled(false);
-                            socket.emit("ENDTURN", gameCode);
-                        }, 3000);
-                    } 
-                }
-            });
-        }
-    }
+    // useEffect(() => {
+    //     console.log("my turn", myTurn);
+    //     if (myTurn && possibleMoves !== null && rolled) {
+    //         if (Object.keys(possibleMoves).length === 0) {
+    //             console.log("No possible moves, ending turn");
+    //             setShowCannotMove(true);
+    //             setTimeout(() => {
+    //                 setRolled(false);
+    //                 socket.emit("ENDTURN", gameCode);
+    //             }, 2000);
+    //         }
+    //     }
+    // }, [possibleMoves,myTurn,gameCode,rolled])
 
-    function rollDice() {
-        socket.emit("ROLL", gameCode);
-        getAllPossibleMoves();
-    }
+    // function getAllPossibleMoves() {
+    //     if (myTurn) {
+    //         fetch(`api/game/${gameCode}/possibleMoves`)
+    //         .then(res => res.json())
+    //         .then(data => {
+    //             console.log("all moves",data.allMoves);
+    //             setPossibleMoves(data.allMoves);
+    //             if (myTurn) {
+    //                 if (Object.keys(data.allMoves).length === 0) {
+    //                     console.log("No moves possible, ending turn");
+    //                     setShowCannotMove(true);
+    //                     setTimeout(() => {
+    //                         setRolled(false);
+    //                         socket.emit("ENDTURN", gameCode);
+    //                     }, 3000);
+    //                 } 
+    //             }
+    //         });
+    //     }
+    // }
+
+    const rollDice = () => socket.emit("ROLL", gameCode);
 
     function spikeClicked(index) {
     
@@ -139,9 +150,6 @@ const Game = ({gameCode, name}) => {
                     if (possibleMoves[source].includes(index)) {
                         console.log("valid destination");
                         socket.emit("MOVE", gameCode, source, index);
-                        // Commented out to be naive and only get valid moves after rolled not after moved a piece
-                        // if (dice.length !== 1)
-                        //     getAllPossibleMoves();
                     } else {
                         console.log(`Cannot select spike ${index} as a destination`)
                         setSource(null);
@@ -176,12 +184,6 @@ const Game = ({gameCode, name}) => {
                             { thisPlayer === 0 ? <strong>{players[0]}</strong> : players[0]}
                             <span className="piece circle circle-white mx-1"/> vs <span className="piece circle circle-black mx-1"/>
                             { thisPlayer === 1 ? <strong>{players[1]}</strong> : players[1]}
-                        
-                            { myTurn?
-                            <img className="img-fluid icon" src={refreshArrow} alt="refresh possible moves" onClick={() => {getAllPossibleMoves()}} style={{cursor:"pointer"}}/>
-                            :
-                            null
-                            }
                         </h4>
                         { (myTurn && !rolled) ?
                             <button type="button" className="btn btn-dark roll-btn" onClick={() => {rollDice();}}>Roll</button>

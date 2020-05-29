@@ -5,7 +5,7 @@ class Game():
 
     def __init__(self):
         self.board = self.set_initial_board([0 for i in range(24)])
-        self.taken_pieces = []
+        self.taken_pieces = [1,1]
         self.players = []
         self.current_player = None
         self.dice = []
@@ -13,7 +13,7 @@ class Game():
 
     def start_game(self):
         self.current_player = random.randint(0,1)
-        # self.current_player = 1
+        self.current_player = 1 # REMOVE
 
     def set_initial_board(self, board):
         new_board = deepcopy(board)
@@ -25,6 +25,7 @@ class Game():
         new_board[16] = 3
         new_board[18] = 5
         new_board[23] = -2
+        # new_board[15] = 1 # REMOVE
         return new_board
 
     def set_takeoff_board(self, board):
@@ -41,7 +42,6 @@ class Game():
         new_board[20] = 3
         new_board[19] = 2
         new_board[18] = 3
-
         return new_board
 
 
@@ -63,7 +63,7 @@ class Game():
             self.dice = [num1 for i in range(4)]
         else:
             self.dice = [num1, num2]
-        # self.dice = [2,3]
+        self.dice = [1,6] # REMOVE
 
     def switch_turn(self):
         self.dice = []
@@ -110,7 +110,7 @@ class Game():
             if -1 in self.taken_pieces:
                 all_moves = { 24:self.dests(24) }
             else:
-                all_moves = { source:self.dests(source) for source in range(1,len(self.board)) if self.board[source] < 0 }
+                all_moves = { source:self.dests(source) for source in range(len(self.board)) if self.board[source] < 0 }
                 if self.can_takeoff():
                     # if you can take off then the moves are the same as normal plus extra for taking off
                     for i in range(6):
@@ -123,7 +123,7 @@ class Game():
             if 1 in self.taken_pieces:
                 all_moves = { -1:self.dests(-1) }
             else:
-                all_moves = { source:self.dests(source) for source in range(1,len(self.board)) if self.board[source] > 0 }
+                all_moves = { source:self.dests(source) for source in range(len(self.board)) if self.board[source] > 0 }
                 if self.can_takeoff():
                     # if you can take off then the moves are the same as normal plus extra for taking off
                     for i in range(18,24):

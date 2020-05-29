@@ -203,7 +203,7 @@ const Game = ({gameCode, name}) => {
     return (
         <div className="container-fluid">
             <GameOverModal show={gameOver} handleCloseGameOver={() => {history.push("/")}} winner={currentPlayer} />
-            <SettingsModal show={showSettings} cancelSettings={() => {setShowSettings(false)}} saveSettings={saveSettings} currentColour1={pieceCol1} currentColour2={pieceCol2} currentFlipH={flipH} />
+            <SettingsModal show={showSettings} cancelSettings={() => {setShowSettings(false)}} saveSettings={saveSettings} currentColour1={pieceCol1} currentColour2={pieceCol2} currentFlipH={flipH} players={players||["Player 1", "Player 2"]}/>
             <img src={gearImg} alt="settings" onClick={() => {setShowSettings(true)}} style={{cursor:"pointer"}} />
             <div className="row">
                 <div className="mx-auto">

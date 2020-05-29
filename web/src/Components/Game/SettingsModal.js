@@ -3,7 +3,7 @@ import {Modal, Button, Collapse} from 'react-bootstrap';
 import {CirclePicker} from 'react-color';
 import Switch from 'react-switch';
 
-export const SettingsModal = ({show,cancelSettings,saveSettings, currentColour1, currentColour2, currentFlipH}) => {
+export const SettingsModal = ({show,cancelSettings,saveSettings, currentColour1, currentColour2, currentFlipH, players}) => {
 
     const [newColour1, setNewColour1] = useState(currentColour1);
     const [newColour2, setNewColour2] = useState(currentColour2);
@@ -20,7 +20,7 @@ export const SettingsModal = ({show,cancelSettings,saveSettings, currentColour1,
                 <div className="container">
                     <div className="row mb-3">
                         <div className="col">
-                            Player 1 Pieces
+                            {players[0]}'s pieces
                             <span className="piece circle mx-1" style={{backgroundColor:newColour1, cursor:"pointer"}} onClick={() => {setShowCP1(!showCP1)}} />
                         </div>
                         <div className="col">
@@ -34,7 +34,7 @@ export const SettingsModal = ({show,cancelSettings,saveSettings, currentColour1,
 
                     <div className="row mb-3">
                         <div className="col">
-                            Player 2 Pieces
+                            {players[1]}'s pieces
                             <span className="piece circle mx-1" style={{backgroundColor:newColour2, cursor:"pointer"}} onClick={() => {setShowCP2(!showCP2)}} />
                         </div>
                         <div className="col">

@@ -265,25 +265,45 @@ const Game = ({gameCode, name}) => {
                     <div className="row" style={{marginBottom:"70px"}}>
                         {
                         flipH?
-                        board.slice(0,12).reverse().map((value, index) => {
-                            return <Spike key={11-index} index={11-index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
-                        })
+                            thisPlayer?
+                                board.slice(0,12).reverse().map((value, index) => {
+                                    return <Spike key={11-index} index={11-index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
+                                })
+                            :
+                                board.slice(12,24).map((value, index) => {
+                                    return <Spike key={11+index} index={12+index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
+                                })
                         :
-                        board.slice(0,12).map((value, index) => {
-                            return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
-                        })
+                            thisPlayer?
+                                board.slice(0,12).map((value, index) => {
+                                    return <Spike key={index} index={index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
+                                })
+                            :
+                                board.slice(12,24).reverse().map((value, index) => {
+                                    return <Spike key={index} index={23-index} pieces={value} direction="down" color={index%2===0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
+                                })
                         }
                     </div>
                     <div className="row">
                         {
                         flipH?
-                        board.slice(12,24).map((value, index) => {
-                            return <Spike key={index} index={12+index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
-                        })
+                        thisPlayer?
+                            board.slice(12,24).map((value, index) => {
+                                return <Spike key={index} index={12+index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
+                            })
+                            :
+                            board.slice(0,12).reverse().map((value, index) => {
+                                return <Spike key={index} index={11-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
+                            })
                         :
-                        board.slice(12,24).reverse().map((value, index) => {
-                            return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
-                        })
+                        thisPlayer?
+                            board.slice(12,24).reverse().map((value, index) => {
+                                return <Spike key={11+index} index={23-index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
+                            })
+                            :
+                            board.slice(0,12).map((value, index) => {
+                                return <Spike key={11+index} index={index} pieces={value} direction="up" color={index%2!==0 ? "dark" : "light" } spikeClicked={spikeClicked} source={source} possibleMoves={possibleMoves} pieceCol1={pieceCol1} pieceCol2={pieceCol2} />
+                            })
                         }
                     </div>
                 </div>

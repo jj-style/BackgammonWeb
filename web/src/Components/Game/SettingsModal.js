@@ -11,6 +11,10 @@ export const SettingsModal = ({show,cancelSettings,saveSettings, currentColour1,
     const [showCP1, setShowCP1] = useState(false);
     const [showCP2, setShowCP2] = useState(false);
 
+    const colourOptions = [ "#000000", "#ffffff", "#f44336", "#e91e63", "#9c27b0", "#673ab7",
+                            "#3f51b5", "#2196f3", "#03a9f4", "#00bcd4", "#009688", "#4caf50",
+                            "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", "#ff9800", "#ff5722" ]
+
     return (
         <Modal show={show} onHide={cancelSettings}>
             <Modal.Header closeButton>
@@ -26,7 +30,7 @@ export const SettingsModal = ({show,cancelSettings,saveSettings, currentColour1,
                         <div className="col">
                             <Collapse in={showCP1}>
                                 <div>
-                                    <CirclePicker onChangeComplete={(color, event) => {setNewColour1(color.hex)}}/>
+                                    <CirclePicker onChangeComplete={(color, event) => {setNewColour1(color.hex)}} colors={colourOptions} />
                                 </div>
                             </Collapse>
                         </div>
@@ -40,7 +44,7 @@ export const SettingsModal = ({show,cancelSettings,saveSettings, currentColour1,
                         <div className="col">
                             <Collapse in={showCP2}>
                                 <div>
-                                    <CirclePicker onChangeComplete={(color, event) => {setNewColour2(color.hex)}}/>
+                                    <CirclePicker onChangeComplete={(color, event) => {setNewColour2(color.hex)}} colors={colourOptions} />
                                 </div>
                             </Collapse>
                         </div>

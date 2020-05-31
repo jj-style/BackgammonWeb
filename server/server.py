@@ -87,24 +87,24 @@ def roll_dice(gameCode):
         GAMES[gameCode].roll()
         return jsonify({"response":"OK"})
 
-@socketio.on('SUBSCRIBE')
+@socketio.on('SUBSCRIBE', namespace="/gamesocket")
 def subscribe_to_game(code):
     print("subscribing to game")
     join_room(code)
     emit("SUBSCRIBED",json.dumps(GAMES[code].__dict__), room=code)
 
-@socketio.on('UNSUBSCRIBE')
+@socketio.on('UNSUBSCRIBE', namespace="/gamesocket")
 def unsubscribe_to_game(code,name):
     print("unsubscribing to game")
     GAMES[code].players.remove(name)
     leave_room(code)
 
-@socketio.on('ROLL')
+@socketio.on('ROLL', namespace="/gamesocket")
 def roll_socket(game_code):
     GAMES[game_code].roll()
     emit("ROLLED",json.dumps( {**GAMES[game_code].__dict__, **{"possible_moves":GAMES[game_code].compute_all_moves()}} ), room=game_code)
 
-@socketio.on('MOVE')
+@socketio.on('MOVE', namespace="/gamesocket")
 def move_piece_socket(game_code, from_index, to_index):
     GAMES[game_code].move(from_index, to_index)
     if len(GAMES[game_code].dice) == 0 or GAMES[game_code].game_over:
@@ -119,7 +119,7 @@ def get_possible_moves(gameCode):
     print(GAMES[gameCode].compute_all_moves())
     return jsonify({"allMoves":GAMES[gameCode].compute_all_moves()})
 
-@socketio.on('ENDTURN')
+@socketio.on('ENDTURN', namespace="/gamesocket")
 def end_turn(game_code):
     GAMES[game_code].switch_turn()
     emit("ENDEDTURN",json.dumps(GAMES[game_code].__dict__), room=game_code)

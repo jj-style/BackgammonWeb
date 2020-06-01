@@ -4,6 +4,8 @@ Online backgammon app.
 Front end in ReactJS  
 Back end in Flask
 
+Game currently hosted at https://jjstyle.computer
+
 ## Instructions
 ### Server
 Open a terminal in the [server](/server) directory.
